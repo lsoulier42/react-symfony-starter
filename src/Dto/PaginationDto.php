@@ -2,51 +2,37 @@
 
 namespace App\Dto;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 class PaginationDto
 {
-    /**
-     * @var int $page
-     */
+    #[Assert\GreaterThanOrEqual(1)]
     private int $page = 1;
 
-    /**
-     * @var int $limit
-     */
+    #[Assert\Range(min: 1, max: 100)]
     private int $limit = 10;
 
-    /**
-     * @return int
-     */
     public function getPage(): int
     {
         return $this->page;
     }
 
-    /**
-     * @param int $page
-     * @return PaginationDto
-     */
-    public function setPage(int $page): PaginationDto
+    public function setPage(int $page): static
     {
         $this->page = $page;
+
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getLimit(): int
     {
         return $this->limit;
     }
 
-    /**
-     * @param int $limit
-     * @return PaginationDto
-     */
-    public function setLimit(int $limit): PaginationDto
+    public function setLimit(int $limit): static
     {
         $this->limit = $limit;
+
         return $this;
     }
 }
