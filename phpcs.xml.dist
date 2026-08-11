@@ -10,6 +10,10 @@
 
     <rule ref="PSR12"/>
 
+    <!-- Symfony-generated files: not meant to be linted -->
+    <exclude-pattern>config/preload.php</exclude-pattern>
+    <exclude-pattern>config/reference.php</exclude-pattern>
+
     <file>bin/</file>
     <file>config/</file>
     <file>public/</file>
