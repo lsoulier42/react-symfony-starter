@@ -35,7 +35,7 @@ class ClassConverterHelper
     /**
      * @param object $from
      * @param object $to
-     * @param array $customMapping
+     * @param array<string, mixed> $customMapping
      * @return object
      */
     public static function convertToClass(

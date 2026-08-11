@@ -1,11 +1,11 @@
 # Symfony7-php8.4-docker
 
-Starter kit pour applications Symfony 7.4 / PHP 8.4 avec Docker.
+Starter kit pour applications Symfony 8.1 / PHP 8.5 avec Docker.
 
 ## Stack technique
 
-- PHP 8.4 (FPM)
-- Symfony 7.4
+- PHP 8.5 (FPM)
+- Symfony 8.1
 - PostgreSQL 18
 - Nginx
 - Mailpit (interface web : http://localhost:1180)

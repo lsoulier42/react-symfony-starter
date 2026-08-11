@@ -13,6 +13,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 
+/**
+ * @extends ServiceEntityRepository<object>
+ */
 abstract class AbstractRepository extends ServiceEntityRepository
 {
     /**
@@ -151,7 +154,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
 
     /**
      * @param QueryBuilder $queryBuilder
-     * @return Collection
+     * @return Collection<array-key, mixed>
      */
     public static function getCollectionFromQueryBuilder(QueryBuilder $queryBuilder): Collection
     {
@@ -202,7 +205,7 @@ abstract class AbstractRepository extends ServiceEntityRepository
     /**
      * @param PaginationDto $dto
      * @param QueryBuilder $queryBuilder
-     * @return Pagerfanta
+     * @return Pagerfanta<mixed>
      */
     public static function findAllPaginated(PaginationDto $dto, QueryBuilder $queryBuilder): Pagerfanta
     {
