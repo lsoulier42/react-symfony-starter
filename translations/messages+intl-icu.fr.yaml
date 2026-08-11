@@ -2,3 +2,6 @@ global:
   app_name: Symfony starter kit
   title:
     homepage: Accueil
+    admin: Administration
+    login: Connexion
+    logout: Déconnexion

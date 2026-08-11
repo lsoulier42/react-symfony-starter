@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block main_content %}
+    <h1>Administration</h1>
+    <p class="text-muted">Tableau de bord d'administration.</p>
+
+    <div class="card mb-4">
+        <div class="card-header">Utilisateurs ({{ users|length }})</div>
+        <ul class="list-group list-group-flush">
+            {% for user in users %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ user.email }}
+                    <span class="badge bg-secondary rounded-pill">{{ user.roles|join(', ') }}</span>
+                </li>
+            {% else %}
+                <li class="list-group-item">Aucun utilisateur enregistré.</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

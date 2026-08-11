@@ -7,6 +7,28 @@
     }]
 %}
 
+{% if is_granted('ROLE_ADMIN') %}
+    {% set links = links|merge([{
+        'text': 'global.title.admin'|trans,
+        'path': path('admin_dashboard'),
+        'icon': 'fa fa-lock'
+    }]) %}
+{% endif %}
+
+{% if app.user %}
+    {% set links = links|merge([{
+        'text': 'global.title.logout'|trans,
+        'path': path('app_logout'),
+        'icon': 'fa fa-sign-out'
+    }]) %}
+{% else %}
+    {% set links = links|merge([{
+        'text': 'global.title.login'|trans,
+        'path': path('app_login'),
+        'icon': 'fa fa-sign-in'
+    }]) %}
+{% endif %}
+
 {% for link in links %}
     {% set link_path = link.path is defined ? link.path : '' %}
     {% set link_icon = link.icon is defined ? link.icon : '' %}
