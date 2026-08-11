@@ -45,5 +45,5 @@ services:
   mailer:
     image: axllent/mailpit
     ports:
-      - "1125:1025"
-      - "1180:8025"
+      - "1126:1025"
+      - "1181:8025"

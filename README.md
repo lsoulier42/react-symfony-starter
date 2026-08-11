@@ -8,7 +8,7 @@ Starter kit pour applications Symfony 8.1 / PHP 8.5 avec Docker.
 - Symfony 8.1
 - PostgreSQL 18
 - Nginx
-- Mailpit (interface web : http://localhost:1180)
+- Mailpit (interface web : http://localhost:1181)
 
 ## Prérequis
 
@@ -41,7 +41,7 @@ Lance le build des images Docker, installe les dépendances Composer et les asse
 | Service | URL |
 |---|---|
 | Application (dev) | http://localhost:8081 |
-| Mailpit | http://localhost:1180 |
+| Mailpit | http://localhost:1181 |
 | PostgreSQL (host) | localhost:5532 |
 
 ## Développement
