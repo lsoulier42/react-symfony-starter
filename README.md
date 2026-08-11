@@ -131,12 +131,12 @@ Toute la configuration par environnement est centralisée dans **`.env`** (valeu
 | `DATABASE_PORT` | `5432` | Port interne PostgreSQL. |
 | `DATABASE_USER` | `root` | Utilisateur PostgreSQL. |
 | `DATABASE_PASSWORD` | `password` | Mot de passe PostgreSQL. |
-| `DATABASE_NAME` | `symfony6-docker` | Nom de la base (nom historique, voir note). |
+| `DATABASE_NAME` | `symfony` | Nom de la base PostgreSQL. |
 | `DATABASE_URL` | `postgresql://…` | DSN Doctrine construit à partir des variables ci‑dessus. |
 | `MAILER_DSN` | `smtp://mailer:1025` | Transport Mailer (Mailpit). |
 | `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Transport async Messenger (Doctrine DBAL). |
 
-> ⚠️ **Note de cohérence** : le nom de la base est `symfony6-docker` (héritage d'un rebranding). Il est volontairement identique entre `.env` et le code pour éviter toute rupture ; vous pouvez le renommer globalement si besoin.
+> Le nom de la base PostgreSQL est `symfony` (cohérent entre `.env` et le code).
 
 ---
 

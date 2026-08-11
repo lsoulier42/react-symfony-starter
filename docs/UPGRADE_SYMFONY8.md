@@ -55,7 +55,7 @@
 - Surveiller le canal `deprecation` Monolog et les notices PHP 8.5.
 
 ### 8. Documentation
-- `README.md` : 7.4/8.4 → 8.x/8.5 ; corriger la cohérence du nom BD `symfony6-docker`.
+- `README.md` / `.env` : nom de la base PostgreSQL unifié en `symfony` (suppression du nom legacy `symfony6-docker`).
 - `AGENTS.md` : mettre à jour les versions de la stack.
 - Commit propre + tag de l'upgrade.
 
