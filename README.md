@@ -33,9 +33,7 @@
 - [Tests](#-tests)
 - [Code quality](#-code-quality)
 - [Docker](#-docker)
-- [Contribution](#-contribution)
 - [License](#-license)
-- [Additional documentation](#-additional-documentation)
 
 ---
 
@@ -157,6 +155,15 @@ All common operations go through `make` (Composer/PHP commands run **inside** th
 | `make composer-update` | `composer update -W` in the container. |
 | `make assets-install` | Installs frontend dependencies via `importmap:install`. |
 | `make assets-compile` | Compiles assets for production (`asset-map:compile`). |
+| `make test` | Runs the PHPUnit test suite in the container. |
+| `make phpstan` | Runs PHPStan static analysis (level 6). |
+| `make cs` | Runs PHP_CodeSniffer (PSR‑12). |
+| `make csfix` | Auto-fixes PSR‑12 violations (`phpcbf`). |
+| `make migrate` | Runs `doctrine:migrations:migrate` (`--no-interaction`). |
+| `make fixtures` | Loads the fixtures (`doctrine:fixtures:load --no-interaction`). |
+| `make logs` | Follows the container logs (`docker compose logs -f`). |
+| `make restart` | Restarts the containers. |
+| `make destroy` | Removes the containers and their volumes (`docker compose down -v`). |
 
 ---
 
@@ -258,15 +265,17 @@ php bin/console make:migration
 php bin/console doctrine:fixtures:load
 ```
 
+> Shortcuts: `make migrate` and `make fixtures` run the same commands with `--no-interaction`.
+
 > In the `test` environment, Doctrine automatically suffixes the database name (`_test…`) to isolate data.
 
 ---
 
 ## ✉️ Messenger & async emails
 
-- `config/packages/messenger.yaml` defines the **`async`** transport (Doctrine DBAL, `MESSENGER_TRANSPORT_DSN`) and a **`failed`** transport (`failed` file).
+- `config/packages/messenger.yaml` defines the **`async`** transport (Doctrine DBAL, `MESSENGER_TRANSPORT_DSN`) and a **`failed`** transport (Doctrine DBAL, `failed` queue).
 - `Symfony\Component\Mailer\Messenger\SendEmailMessage` is routed to `async`: **emails are sent asynchronously** (via Mailpit in dev).
-- Workers are supervised by **`supervisord`** in the PHP container (`docker/php/messenger-workers.conf` + `docker/php/run_php.sh`): they consume `async` and `failed` in a loop, with `autorestart` enabled.
+- Workers are supervised by **`supervisord`** in the PHP container (`docker/php/messenger-workers.conf` + `docker/php/run_php.sh`): one worker consumes the `async` queue, with `autorestart` enabled and an hourly restart via `--time-limit=3600`.
 
 Inspect/retry the queues when needed:
 
@@ -288,6 +297,8 @@ php bin/phpunit                              # the whole suite
 php bin/phpunit tests/path/to/SomeTest.php   # a single file
 php bin/phpunit --filter testMethodName      # a single method
 ```
+
+> Shortcut: `make test` runs the whole suite in the container.
 
 Coverage is declared on `src/` (`<directory suffix=".php">src</directory>`).
 
@@ -313,6 +324,8 @@ vendor/bin/phpcbf   # if fixes are needed
 php bin/phpunit
 ```
 
+> Shortcuts: `make phpstan`, `make cs`, `make csfix` and `make test` do the same without opening a shell.
+
 ---
 
 ## 🐳 Docker
@@ -322,7 +335,7 @@ Orchestration is described in `docker-compose.yaml` (4 services):
 | Service | Image / build | Role |
 |---|---|---|
 | `database` | `postgres:18.2-alpine` | PostgreSQL 18, `pg_isready` healthcheck, persistent volume. |
-| `php` | build `docker/php` | PHP 8.5 FPM + Composer + Xdebug + extensions (pgsql, intl, apcu, sodium…). Supervisord runs FPM + Messenger workers. |
+| `php` | build `docker/php` | PHP 8.5 FPM + Composer + Xdebug + extensions (pgsql, intl, apcu, sodium…). Supervisord manages the Messenger workers (FPM runs alongside). |
 | `nginx` | `nginx:1.29.5-alpine` | FPM reverse proxy, `public/index.php` front controller. |
 | `mailer` | `axllent/mailpit` | SMTP sink + web interface. |
 
@@ -341,25 +354,7 @@ make install                # rebuild + install + start
 
 ---
 
-## 🤝 Contribution
-
-1. Fork the repository and create a feature branch (`git checkout -b feat/my-feature`).
-2. Develop by extending the base classes and following the conventions (`fr` locale, no hardcoded strings).
-3. Make sure the quality gates pass (see [Code quality](#-code-quality)).
-4. Open a Pull Request to `main` with a clear description.
-
-Please keep the default `.env` neutral and document any new environment variable in this README.
-
----
-
 ## 📄 License
 
 Distributed under the **MIT** license — see the [LICENSE](LICENSE) file.
 Copyright © 2023 Louise SOULIER.
-
----
-
-## 📚 Additional documentation
-
-- [`docs/UPGRADE_SYMFONY8.md`](docs/UPGRADE_SYMFONY8.md) — report and upgrade plan to Symfony 8.x / PHP 8.5.
-- [`AGENTS.md`](AGENTS.md) — guidelines for AI coding agents working on this repository.
