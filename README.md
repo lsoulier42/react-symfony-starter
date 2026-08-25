@@ -9,109 +9,109 @@
 </p>
 
 <p align="center">
-  Squelette d'application <strong>Symfony 8.1</strong> conteneurisé (PHP 8.5 FPM), prêt pour la production,
-  avec locale française par défaut, portes de qualité strictes (PSR‑12 + PHPStan niveau 6)
-  et un jeu de classes de base opinionnées pour démarrer rapidement.
+  Containerized <strong>Symfony 8.1</strong> application skeleton (PHP 8.5 FPM), ready for production,
+  with French locale by default, strict quality gates (PSR‑12 + PHPStan level 6)
+  and a set of opinionated base classes to get started quickly.
 </p>
 
 ---
 
-## 📚 Table des matières
+## 📚 Table of Contents
 
-- [Présentation](#-présentation)
-- [Fonctionnalités clés](#-fonctionnalités-clés)
-- [Stack technique](#-stack-technique)
-- [Prérequis](#-prérequis)
-- [Démarrage rapide](#-démarrage-rapide)
+- [Overview](#-overview)
+- [Key features](#-key-features)
+- [Tech stack](#-tech-stack)
+- [Prerequisites](#-prerequisites)
+- [Quick start](#-quick-start)
 - [Configuration](#-configuration)
-- [Commandes (Makefile)](#-commandes-makefile)
+- [Commands (Makefile)](#-commands-makefile)
 - [Services & URLs](#-services--urls)
-- [Structure du projet](#-structure-du-projet)
+- [Project structure](#-project-structure)
 - [Architecture & conventions](#-architecture--conventions)
-- [Base de données & migrations](#-base-de-données--migrations)
-- [Messenger & emails asynchrones](#-messenger--emails-asynchrones)
+- [Database & migrations](#-database--migrations)
+- [Messenger & async emails](#-messenger--async-emails)
 - [Tests](#-tests)
-- [Qualité de code](#-qualité-de-code)
+- [Code quality](#-code-quality)
 - [Docker](#-docker)
 - [Contribution](#-contribution)
-- [Licence](#-licence)
-- [Documentation complémentaire](#-documentation-complémentaire)
+- [License](#-license)
+- [Additional documentation](#-additional-documentation)
 
 ---
 
-## 📖 Présentation
+## 📖 Overview
 
-Ce dépôt est un **starter kit** (point de départ) pour construire une application web Symfony moderne, entièrement exécutée dans des conteneurs Docker. Il fournit :
+This repository is a **starter kit** (starting point) for building a modern Symfony web application, fully running in Docker containers. It provides:
 
-- un environnement de développement reproductible (PHP 8.5 FPM, Nginx, PostgreSQL 18, Mailpit) ;
-- une configuration Symfony 8.1 éprouvée (Doctrine ORM 3, Messenger, Mailer, AssetMapper, Stimulus, Twig, Security, Validator, Translator) ;
-- des **classes de base** (`AbstractBaseController`, `AbstractEntity`, `AbstractRepository`, `AbstractFixtures`) et **utilitaires** (`Helper/`, `Dto/`, `Trait/`) pour accélérer le développement ;
-- des portes de qualité de code intégrées (PHPStan niveau 6, phpcs PSR‑12, PHPUnit 12).
+- a reproducible development environment (PHP 8.5 FPM, Nginx, PostgreSQL 18, Mailpit) ;
+- a proven Symfony 8.1 setup (Doctrine ORM 3, Messenger, Mailer, AssetMapper, Stimulus, Twig, Security, Validator, Translator) ;
+- **base classes** (`AbstractBaseController`, `AbstractEntity`, `AbstractRepository`, `AbstractFixtures`) and **utilities** (`Helper/`, `Dto/`, `Trait/`) to speed up development ;
+- built-in code quality gates (PHPStan level 6, phpcs PSR‑12, PHPUnit 12).
 
-> Le projet démarre avec une page d'accueil (`HomepageController`) et une architecture « vide mais structurée » : aucune entité métier n'est livrée, à vous de l'enrichir.
-
----
-
-## ✨ Fonctionnalités clés
-
-- **Conteneurisation complète** : PHP (FPM), Nginx, PostgreSQL et Mailpit orchestrés via `docker compose`.
-- **Worker Messenger supervisé** : consommation asynchrone des messages (emails, tâches) via `supervisord` dans le conteneur PHP.
-- **Emails en local sans friction** : Mailpit capte tous les emails sortants et propose une interface web de debug.
-- **Pagination prête à l'emploi** : intégration Pagerfanta via `AbstractRepository::findAllPaginated()` + `PaginationDto`.
-- **Entités « timestampées » et UUID** : `AbstractEntity` + `Trait\Timestampable` (gestion automatique de `createdAt`/`updatedAt` et d'un `Uuid` v4).
-- **Helpers métier** : conversion d'objets (`ClassConverterHelper`), formatage de dates en français (`DateTimeHelper`).
-- **Locale française par défaut** : `config/services.yaml` (`locale: fr`) et catalogues de traduction dans `translations/`.
-- **Qualité de code stricte** : PHPStan niveau 6, PHP_CodeSniffer (PSR‑12), PHPUnit 12.
+> The project ships with a home page (`HomepageController`) and an "empty but structured" architecture: no business entities are included, it's up to you to build on it.
 
 ---
 
-## 🧱 Stack technique
+## ✨ Key features
 
-| Domaine | Technologie | Version |
+- **Full containerization**: PHP (FPM), Nginx, PostgreSQL and Mailpit orchestrated via `docker compose`.
+- **Supervised Messenger workers**: asynchronous consumption of messages (emails, tasks) via `supervisord` in the PHP container.
+- **Frictionless local emails**: Mailpit captures all outgoing emails and provides a web-based debugging interface.
+- **Ready-to-use pagination**: Pagerfanta integration via `AbstractRepository::findAllPaginated()` + `PaginationDto`.
+- **"Timestamped" entities & UUID**: `AbstractEntity` + `Trait\Timestampable` (automatic management of `createdAt`/`updatedAt` and a `Uuid` v4).
+- **Business helpers**: object conversion (`ClassConverterHelper`), French date formatting (`DateTimeHelper`).
+- **French locale by default**: `config/services.yaml` (`locale: fr`) and translation catalogs in `translations/`.
+- **Strict code quality**: PHPStan level 6, PHP_CodeSniffer (PSR‑12), PHPUnit 12.
+
+---
+
+## 🧱 Tech stack
+
+| Area | Technology | Version |
 |---|---|---|
-| Langage | PHP (FPM) | **8.5** |
+| Language | PHP (FPM) | **8.5** |
 | Framework | Symfony | **8.1** |
-| Base de données | PostgreSQL | **18** (`postgres:18.2-alpine`) |
-| Serveur web | Nginx | **1.29** (`1.29.5-alpine`) |
+| Database | PostgreSQL | **18** (`postgres:18.2-alpine`) |
+| Web server | Nginx | **1.29** (`1.29.5-alpine`) |
 | Mail (dev) | Mailpit | `axllent/mailpit` |
 | ORM | Doctrine ORM / DBAL | **3.6** / **4.4** |
 | Pagination | Pagerfanta | **4.x** |
 | Frontend | AssetMapper + Stimulus + Bootstrap | Symfony 8.1 assets |
-| Qualité | PHPStan / PHP_CodeSniffer / PHPUnit | **2.x** / **3.7** / **12** |
+| Quality | PHPStan / PHP_CodeSniffer / PHPUnit | **2.x** / **3.7** / **12** |
 
 ---
 
-## 📋 Prérequis
+## 📋 Prerequisites
 
-- **Docker** ≥ 24 et **Docker Compose** (v2, inclus dans la CLI Docker).
-- **Make** (utilitaire `make`) pour exécuter les recettes du `Makefile`.
-- **Git** pour cloner le dépôt.
-- Aucune installation locale de PHP/Composer/PostgreSQL n'est requise : tout s'exécute dans les conteneurs.
+- **Docker** ≥ 24 and **Docker Compose** (v2, included in the Docker CLI).
+- **Make** (the `make` utility) to run the `Makefile` recipes.
+- **Git** to clone the repository.
+- No local PHP/Composer/PostgreSQL installation is required: everything runs in the containers.
 
-> ℹ️ Sous Linux, assurez-vous que votre utilisateur appartient au groupe `docker` (sinon préfixez les commandes avec `sudo`).
+> ℹ️ On Linux, make sure your user belongs to the `docker` group (otherwise prefix the commands with `sudo`).
 
 ---
 
-## 🚀 Démarrage rapide
+## 🚀 Quick start
 
 ```bash
-# 1. Cloner le dépôt
+# 1. Clone the repository
 git clone git@github.com:lsoulier42/symfony-docker-starter.git
 cd symfony-docker-starter
 
-# 2. Construire les images, installer les dépendances et démarrer
+# 2. Build the images, install the dependencies and start
 make install
 
-# 3. Ouvrir l'application
+# 3. Open the application
 #    → http://localhost:8081
 ```
 
-`make install` enchaîne automatiquement : `docker compose build`, `composer install`, `importmap:install` et `docker compose up -d`.
+`make install` automatically runs: `docker compose build`, `composer install`, `importmap:install` and `docker compose up -d`.
 
-Pour initialiser la base de données (une fois les conteneurs démarrés) :
+To initialize the database (once the containers are running):
 
 ```bash
-make connect                      # shell dans le conteneur PHP
+make connect                      # shell into the PHP container
 php bin/console doctrine:migrations:migrate
 ```
 
@@ -119,82 +119,82 @@ php bin/console doctrine:migrations:migrate
 
 ## ⚙️ Configuration
 
-Toute la configuration par environnement est centralisée dans **`.env`** (valeurs par défaut commitées) et peut être surchargée localement par **`.env.local`** (non versionné). L'environnement de test utilise **`.env.test`**.
+All per-environment configuration is centralized in **`.env`** (committed default values) and can be overridden locally by **`.env.local`** (not versioned). The test environment uses **`.env.test`**.
 
-| Variable | Valeur par défaut | Description |
+| Variable | Default | Description |
 |---|---|---|
-| `APP_ENV` | `dev` | Environnement Symfony (`dev` / `prod` / `test`). |
-| `APP_SECRET` | `6bd8b04b…` | Clé secrète de l'application. |
-| `APP_VERSION` | `0.1.0` | Version de l'application (exposée via le paramètre `app_version`). |
-| `APP_PORT` | `8081` | Port hôte exposé par Nginx. |
-| `DATABASE_HOST` | `database` | Nom du service PostgreSQL (réseau Docker). |
-| `DATABASE_PORT` | `5432` | Port interne PostgreSQL. |
-| `DATABASE_USER` | `root` | Utilisateur PostgreSQL. |
-| `DATABASE_PASSWORD` | `password` | Mot de passe PostgreSQL. |
-| `DATABASE_NAME` | `symfony` | Nom de la base PostgreSQL. |
-| `DATABASE_URL` | `postgresql://…` | DSN Doctrine construit à partir des variables ci‑dessus. |
-| `MAILER_DSN` | `smtp://mailer:1025` | Transport Mailer (Mailpit). |
-| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Transport async Messenger (Doctrine DBAL). |
+| `APP_ENV` | `dev` | Symfony environment (`dev` / `prod` / `test`). |
+| `APP_SECRET` | `6bd8b04b…` | Application secret key. |
+| `APP_VERSION` | `0.1.0` | Application version (exposed via the `app_version` parameter). |
+| `APP_PORT` | `8081` | Host port exposed by Nginx. |
+| `DATABASE_HOST` | `database` | PostgreSQL service name (Docker network). |
+| `DATABASE_PORT` | `5432` | PostgreSQL internal port. |
+| `DATABASE_USER` | `root` | PostgreSQL user. |
+| `DATABASE_PASSWORD` | `password` | PostgreSQL password. |
+| `DATABASE_NAME` | `symfony` | PostgreSQL database name. |
+| `DATABASE_URL` | `postgresql://…` | Doctrine DSN built from the variables above. |
+| `MAILER_DSN` | `smtp://mailer:1025` | Mailer transport (Mailpit). |
+| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Messenger async transport (Doctrine DBAL). |
 
-> Le nom de la base PostgreSQL est `symfony` (cohérent entre `.env` et le code).
+> The PostgreSQL database name is `symfony` (consistent between `.env` and the code).
 
 ---
 
-## 🛠 Commandes (Makefile)
+## 🛠 Commands (Makefile)
 
-Toutes les opérations courantes passent par `make` (les commandes Composer/PHP s'exécutent **dans** le conteneur PHP).
+All common operations go through `make` (Composer/PHP commands run **inside** the PHP container).
 
-| Commande | Description |
+| Command | Description |
 |---|---|
-| `make install` | Build des images + `composer install` + assets + démarrage complet. |
-| `make start` | Démarre les conteneurs en arrière‑plan. |
-| `make start-verbose` | Démarre les conteneurs et affiche les logs en direct. |
-| `make stop` | Arrête et supprime les conteneurs (`docker compose down`). |
-| `make connect` | Ouvre un shell Bash dans le conteneur PHP. |
-| `make clear` | Vide le cache Symfony (`cache:clear`). |
-| `make composer-install` | `composer install` (memory limit élevée) dans le conteneur. |
-| `make composer-update` | `composer update -W` dans le conteneur. |
-| `make assets-install` | Installe les dépendances front via `importmap:install`. |
-| `make assets-compile` | Compile les assets pour la production (`asset-map:compile`). |
+| `make install` | Build images + `composer install` + assets + full start. |
+| `make start` | Starts the containers in the background. |
+| `make start-verbose` | Starts the containers and shows live logs. |
+| `make stop` | Stops and removes the containers (`docker compose down`). |
+| `make connect` | Opens a Bash shell in the PHP container. |
+| `make clear` | Clears the Symfony cache (`cache:clear`). |
+| `make composer-install` | `composer install` (high memory limit) in the container. |
+| `make composer-update` | `composer update -W` in the container. |
+| `make assets-install` | Installs frontend dependencies via `importmap:install`. |
+| `make assets-compile` | Compiles assets for production (`asset-map:compile`). |
 
 ---
 
 ## 🌐 Services & URLs
 
-| Service | URL / hôte | Remarque |
+| Service | URL / host | Notes |
 |---|---|---|
-| Application (dev) | `http://localhost:8081` | Servie par Nginx + PHP‑FPM. |
-| Mailpit (interface web) | `http://localhost:1181` | Visualiseur d'emails de dev. |
-| PostgreSQL (hôte) | `localhost:5532` | Port mappé depuis le conteneur `database`. |
-| SMTP Mailpit (hôte) | `localhost:1126` | Port SMTP mappé (interne `1025`). |
+| Application (dev) | `http://localhost:8081` | Served by Nginx + PHP‑FPM. |
+| Mailpit (web interface) | `http://localhost:1181` | Dev email viewer. |
+| PostgreSQL (host) | `localhost:5532` | Port mapped from the `database` container. |
+| Mailpit SMTP (host) | `localhost:1126` | Mapped SMTP port (internal `1025`). |
 
 ---
 
-## 🗂 Structure du projet
+## 🗂 Project structure
 
 ```
 .
-├── bin/                      # Exécutables (console, composer, phpunit)
-├── config/                  # Configuration Symfony (packages/, services.yaml, routes…)
+├── bin/                      # Executables (console, composer, phpunit)
+├── config/                  # Symfony configuration (packages/, services.yaml, routes…)
 ├── docker/
-│   ├── db/                  # Volume de données PostgreSQL
-│   ├── nginx/default.conf   # Configuration Nginx (PHP‑FPM, front controller)
-│   └── php/                 # Dockerfile PHP, supervisord (workers Messenger), entrypoint
-├── migrations/              # Migrations Doctrine
+│   ├── db/                  # PostgreSQL data volume
+│   ├── nginx/default.conf   # Nginx configuration (PHP‑FPM, front controller)
+│   └── php/                 # PHP Dockerfile, supervisord (Messenger workers), entrypoint
+├── migrations/              # Doctrine migrations
 ├── public/                  # Document root (index.php, favicon…)
 ├── src/
-│   ├── Controller/          # Contrôleurs (AbstractBaseController + HomepageController)
-│   ├── Entity/              # Entités Doctrine (AbstractEntity)
+│   ├── Controller/          # Controllers (AbstractBaseController + HomepageController)
+│   ├── Entity/              # Doctrine entities (AbstractEntity)
 │   ├── Repository/          # Repositories (AbstractRepository)
 │   ├── Dto/                 # PaginationDto
 │   ├── Helper/              # DateTimeHelper, ClassConverterHelper
 │   ├── Trait/               # Timestampable
 │   ├── DataFixtures/        # AbstractFixtures
 │   └── Kernel.php
-├── templates/               # Templates Twig (base, layout, homepage)
-├── assets/                  # Sources front (JS/CSS, importmap, Stimulus)
-├── tests/                   # Tests PHPUnit (bootstrap.php)
-├── translations/            # Catalogues de traduction (messages+intl-icu.fr.yaml)
+├── templates/               # Twig templates (base, layout, homepage)
+├── assets/                  # Frontend sources (JS/CSS, importmap, Stimulus)
+├── tests/                   # PHPUnit tests (bootstrap.php)
+├── translations/            # Translation catalogs (messages+intl-icu.fr.yaml)
 ├── docker-compose.yaml
 ├── Makefile
 ├── composer.json
@@ -205,65 +205,65 @@ Toutes les opérations courantes passent par `make` (les commandes Composer/PHP 
 
 ## 🏗 Architecture & conventions
 
-L'objectif de ce starter kit est de **réduire le code répétitif** : étendez les classes de base plutôt que de tout réimplémenter.
+The goal of this starter kit is to **reduce boilerplate**: extend the base classes rather than reimplementing everything.
 
-### Classes de base à étendre
+### Base classes to extend
 
-| Classe | Rôle |
+| Class | Role |
 |---|---|
-| `App\Controller\AbstractBaseController` | Ajoute `createPaginationDto()`, `addSuccessMessage()`, `addWarningMessage()`, `addErrorMessage()`. |
-| `App\Entity\AbstractEntity` | fournit `id` (SEQUENCE), `uuid` (Uuid v4) et le trait `Timestampable`. |
-| `App\Repository\AbstractRepository` | Helpers DQL : `createOrUpdate()`, `remove()`, `addFieldLike()`, `addFieldAndWhere()`, `addTableJoin()`, `addPeriodWhere()`, `addRandomElements()`, `findAllPaginated()`. |
-| `App\DataFixtures\AbstractFixtures` | Initialise un générateur `Faker` (`fr_FR`) pour les fixtures. |
+| `App\Controller\AbstractBaseController` | Adds `createPaginationDto()`, `addSuccessMessage()`, `addWarningMessage()`, `addErrorMessage()`. |
+| `App\Entity\AbstractEntity` | Provides `id` (SEQUENCE), `uuid` (Uuid v4) and the `Timestampable` trait. |
+| `App\Repository\AbstractRepository` | DQL helpers: `createOrUpdate()`, `remove()`, `addFieldLike()`, `addFieldAndWhere()`, `addTableJoin()`, `addPeriodWhere()`, `addRandomElements()`, `findAllPaginated()`. |
+| `App\DataFixtures\AbstractFixtures` | Initializes a `Faker` generator (`fr_FR`) for fixtures. |
 
 ### Helpers & DTO
 
-- `App\Helper\DateTimeHelper` — `formatMonthYearFrench()` et constantes de mois français.
-- `App\Helper\ClassConverterHelper` — `convertToClass()` pour copier les propriétés d'un objet vers un autre (via PropertyInfo / PropertyAccess).
-- `App\Dto\PaginationDto` — payload de pagination (`page`, `limit`), compatible avec Pagerfanta.
+- `App\Helper\DateTimeHelper` — `formatMonthYearFrench()` and French month constants.
+- `App\Helper\ClassConverterHelper` — `convertToClass()` to copy an object's properties onto another (via PropertyInfo / PropertyAccess).
+- `App\Dto\PaginationDto` — pagination payload (`page`, `limit`), compatible with Pagerfanta.
 
-### Autowiring & enregistrement des services
+### Autowiring & service registration
 
-`config/services.yaml` active l'**autowiring** et l'**autoconfiguration** pour le préfixe `App\`. Tout ce qui se trouve sous `src/` est enregistré automatiquement **à l'exception de** :
+`config/services.yaml` enables **autowiring** and **autoconfiguration** for the `App\` prefix. Everything under `src/` is registered automatically **except**:
 
-- `src/Entity/` (entités Doctrine, exclues volontairement) ;
+- `src/Entity/` (Doctrine entities, intentionally excluded) ;
 - `src/Kernel.php` ;
 - `src/DependencyInjection/`.
 
-### Locale & traductions
+### Locale & translations
 
-La locale par défaut est **`fr`** (`config/services.yaml`). Les chaînes utilisateur doivent être placées dans les catalogues `translations/` (actuellement `messages+intl-icu.fr.yaml`) plutôt que codées en dur.
+The default locale is **`fr`** (`config/services.yaml`). User-facing strings should live in the `translations/` catalogs (currently `messages+intl-icu.fr.yaml`) rather than being hardcoded.
 
 ---
 
-## 🗄 Base de données & migrations
+## 🗄 Database & migrations
 
-La connexion est pilotée par `DATABASE_URL` (Doctrine DBAL 4). Le mapping ORM utilise les attributs PHP (`type: attribute`) sous `src/Entity`.
+The connection is driven by `DATABASE_URL` (Doctrine DBAL 4). ORM mapping uses PHP attributes (`type: attribute`) under `src/Entity`.
 
 ```bash
-make connect                                   # shell PHP
+make connect                                   # PHP shell
 
-# Créer le schéma à partir des migrations
+# Create the schema from the migrations
 php bin/console doctrine:migrations:migrate
 
-# Générer une nouvelle migration après modification d'une entité
+# Generate a new migration after modifying an entity
 php bin/console make:migration
 
-# Charger les fixtures (si implémentées)
+# Load the fixtures (if implemented)
 php bin/console doctrine:fixtures:load
 ```
 
-> En environnement `test`, Doctrine suffixe automatiquement le nom de la base (`_test…`) pour isoler les données.
+> In the `test` environment, Doctrine automatically suffixes the database name (`_test…`) to isolate data.
 
 ---
 
-## ✉️ Messenger & emails asynchrones
+## ✉️ Messenger & async emails
 
-- `config/packages/messenger.yaml` définit le transport **`async`** (Doctrine DBAL, `MESSENGER_TRANSPORT_DSN`) et un transport **`failed`** (file `failed`).
-- `Symfony\Component\Mailer\Messenger\SendEmailMessage` est routé vers `async` : **les emails sont envoyés de façon asynchrone** (via Mailpit en dev).
-- Les workers sont supervisés par **`supervisord`** dans le conteneur PHP (`docker/php/messenger-workers.conf` + `docker/php/run_php.sh`) : ils consomment `async` et `failed` en boucle, avec `autorestart` activé.
+- `config/packages/messenger.yaml` defines the **`async`** transport (Doctrine DBAL, `MESSENGER_TRANSPORT_DSN`) and a **`failed`** transport (`failed` file).
+- `Symfony\Component\Mailer\Messenger\SendEmailMessage` is routed to `async`: **emails are sent asynchronously** (via Mailpit in dev).
+- Workers are supervised by **`supervisord`** in the PHP container (`docker/php/messenger-workers.conf` + `docker/php/run_php.sh`): they consume `async` and `failed` in a loop, with `autorestart` enabled.
 
-Consulter/relancer les files en cas de besoin :
+Inspect/retry the queues when needed:
 
 ```bash
 php bin/console messenger:failed:show
@@ -274,37 +274,37 @@ php bin/console messenger:failed:retry
 
 ## 🧪 Tests
 
-PHPUnit 12 est configuré par `phpunit.xml.dist` (bootstrap `tests/bootstrap.php`, écouteur `SymfonyTestsListener`). L'environnement de test est forcé via `APP_ENV=test`.
+PHPUnit 12 is configured via `phpunit.xml.dist` (bootstrap `tests/bootstrap.php`, `SymfonyTestsListener` listener). The test environment is forced via `APP_ENV=test`.
 
 ```bash
 make connect
 
-php bin/phpunit                              # toute la suite
-php bin/phpunit tests/path/to/SomeTest.php   # un fichier
-php bin/phpunit --filter testMethodName      # une méthode
+php bin/phpunit                              # the whole suite
+php bin/phpunit tests/path/to/SomeTest.php   # a single file
+php bin/phpunit --filter testMethodName      # a single method
 ```
 
-Le coverage est déclaré sur `src/` (`<directory suffix=".php">src</directory>`).
+Coverage is declared on `src/` (`<directory suffix=".php">src</directory>`).
 
 ---
 
-## 🔍 Qualité de code
+## 🔍 Code quality
 
-Trois portes de qualité sont configurées et doivent être **vertes avant tout commit** :
+Three quality gates are configured and must be **green before any commit**:
 
-| Outil | Commande | Configuration |
+| Tool | Command | Configuration |
 |---|---|---|
-| Analyse statique | `vendor/bin/phpstan analyse` | `phpstan.dist.neon` — **niveau 6** (chemins : `bin/`, `config/`, `public/`, `src/`, `tests/`). |
-| Style de code | `vendor/bin/phpcs` | `phpcs.xml.dist` — règle **PSR‑12**. |
-| Correction auto | `vendor/bin/phpcbf` | Corrige automatiquement les écarts PSR‑12 détectés. |
+| Static analysis | `vendor/bin/phpstan analyse` | `phpstan.dist.neon` — **level 6** (paths: `bin/`, `config/`, `public/`, `src/`, `tests/`). |
+| Code style | `vendor/bin/phpcs` | `phpcs.xml.dist` — **PSR‑12** rule. |
+| Auto-fix | `vendor/bin/phpcbf` | Automatically fixes detected PSR‑12 violations. |
 
-Exécuter l'ensemble des portes :
+Run all the gates:
 
 ```bash
 make connect
 vendor/bin/phpstan analyse
 vendor/bin/phpcs
-vendor/bin/phpcbf   # si besoin de corriger
+vendor/bin/phpcbf   # if fixes are needed
 php bin/phpunit
 ```
 
@@ -312,25 +312,25 @@ php bin/phpunit
 
 ## 🐳 Docker
 
-L'orchestration est décrite dans `docker-compose.yaml` (4 services) :
+Orchestration is described in `docker-compose.yaml` (4 services):
 
-| Service | Image / build | Rôle |
+| Service | Image / build | Role |
 |---|---|---|
-| `database` | `postgres:18.2-alpine` | PostgreSQL 18, healthcheck `pg_isready`, volume persistant. |
-| `php` | build `docker/php` | PHP 8.5 FPM + Composer + Xdebug + extensions (pgsql, intl, apcu, sodium…). Supervisord lance FPM + workers Messenger. |
-| `nginx` | `nginx:1.29.5-alpine` | Reverse proxy FPM, front controller `public/index.php`. |
-| `mailer` | `axllent/mailpit` | Capteur SMTP + interface web. |
+| `database` | `postgres:18.2-alpine` | PostgreSQL 18, `pg_isready` healthcheck, persistent volume. |
+| `php` | build `docker/php` | PHP 8.5 FPM + Composer + Xdebug + extensions (pgsql, intl, apcu, sodium…). Supervisord runs FPM + Messenger workers. |
+| `nginx` | `nginx:1.29.5-alpine` | FPM reverse proxy, `public/index.php` front controller. |
+| `mailer` | `axllent/mailpit` | SMTP sink + web interface. |
 
-Points notables :
+Notable points:
 
-- L'image PHP est construite depuis `php:8.5-fpm` avec `install-php-extensions` pour des builds reproductibles.
-- L'utilisateur `docker` (sudo NOPASSWD) évite les problèmes de permissions avec les volumes montés.
-- `php` dépend de `database` (condition `service_healthy`) ; `nginx` dépend de `php`.
+- The PHP image is built from `php:8.5-fpm` with `install-php-extensions` for reproducible builds.
+- The `docker` user (NOPASSWD sudo) avoids permission issues with mounted volumes.
+- `php` depends on `database` (`service_healthy` condition); `nginx` depends on `php`.
 
-Pour reconstruire from scratch (ex. après changement de version PHP) :
+To rebuild from scratch (e.g. after a PHP version change):
 
 ```bash
-docker compose down -v      # supprime aussi les volumes (BASE DE DONNÉES PERDUE)
+docker compose down -v      # also removes volumes (DATABASE LOST)
 make install                # rebuild + install + start
 ```
 
@@ -338,23 +338,23 @@ make install                # rebuild + install + start
 
 ## 🤝 Contribution
 
-1. Forkez le dépôt et créez une branche feature (`git checkout -b feat/ma-fonctionnalite`).
-2. Développez en étendant les classes de base et en respectant les conventions (locale `fr`, pas de chaînes codées en dur).
-3. Assurez-vous que les portes de qualité passent (voir [Qualité de code](#-qualité-de-code)).
-4. Ouvrez une Pull Request vers `main` avec une description claire.
+1. Fork the repository and create a feature branch (`git checkout -b feat/my-feature`).
+2. Develop by extending the base classes and following the conventions (`fr` locale, no hardcoded strings).
+3. Make sure the quality gates pass (see [Code quality](#-code-quality)).
+4. Open a Pull Request to `main` with a clear description.
 
-Merci de garder le `.env` par défaut neutre et de documenter toute nouvelle variable d'environnement dans ce README.
+Please keep the default `.env` neutral and document any new environment variable in this README.
 
 ---
 
-## 📄 Licence
+## 📄 License
 
-Distribué sous la licence **MIT** — voir le fichier [LICENSE](LICENSE).
+Distributed under the **MIT** license — see the [LICENSE](LICENSE) file.
 Copyright © 2023 Louise SOULIER.
 
 ---
 
-## 📚 Documentation complémentaire
+## 📚 Additional documentation
 
-- [`docs/UPGRADE_SYMFONY8.md`](docs/UPGRADE_SYMFONY8.md) — compte‑rendu et plan de montée de version vers Symfony 8.x / PHP 8.5.
-- [`AGENTS.md`](AGENTS.md) — directives destinées aux agents de codage IA travaillant sur ce dépôt.
+- [`docs/UPGRADE_SYMFONY8.md`](docs/UPGRADE_SYMFONY8.md) — report and upgrade plan to Symfony 8.x / PHP 8.5.
+- [`AGENTS.md`](AGENTS.md) — guidelines for AI coding agents working on this repository.
