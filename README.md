@@ -45,10 +45,10 @@ This repository is a **starter kit** (starting point) for building a modern Symf
 
 - a reproducible development environment (PHP 8.5 FPM, Nginx, PostgreSQL 18, Mailpit) ;
 - a proven Symfony 8.1 setup (Doctrine ORM 3, Messenger, Mailer, AssetMapper, Stimulus, Twig, Security, Validator, Translator) ;
-- **base classes** (`AbstractBaseController`, `AbstractEntity`, `AbstractRepository`, `AbstractFixtures`) and **utilities** (`Helper/`, `Dto/`, `Trait/`) to speed up development ;
+- **base classes** (`AbstractBaseController`, `AbstractApiController`, `AbstractEntity`, `AbstractRepository`, `AbstractFixtures`) and **utilities** (`Helper/`, `Dto/`, `Trait/`, `Story/`) to speed up development ;
 - built-in code quality gates (PHPStan level 6, phpcs PSR‑12, PHPUnit 12).
 
-> The project ships with a home page (`HomepageController`) and an "empty but structured" architecture: no business entities are included, it's up to you to build on it.
+> The project ships with a home page (`HomepageController`) plus a complete `User` example: authentication (login form, admin area) and a representative JSON CRUD API. The architecture stays "empty but structured" — build your own business entities on top.
 
 ---
 
@@ -57,9 +57,10 @@ This repository is a **starter kit** (starting point) for building a modern Symf
 - **Full containerization**: PHP (FPM), Nginx, PostgreSQL and Mailpit orchestrated via `docker compose`.
 - **Supervised Messenger workers**: asynchronous consumption of messages (emails, tasks) via `supervisord` in the PHP container.
 - **Frictionless local emails**: Mailpit captures all outgoing emails and provides a web-based debugging interface.
-- **Ready-to-use pagination**: Pagerfanta integration via `AbstractRepository::findAllPaginated()` + `PaginationDto`.
+- **Ready-to-use pagination**: Pagerfanta integration via `QueryBuilderHelper::findAllPaginated()` + `PaginationDto`.
 - **"Timestamped" entities & UUID**: `AbstractEntity` + `Trait\Timestampable` (automatic management of `createdAt`/`updatedAt` and a `Uuid` v4).
-- **Business helpers**: object conversion (`ClassConverterHelper`), French date formatting (`DateTimeHelper`).
+- **Authentication & example entity**: `User` with login form, admin area and a JSON CRUD API built on Symfony's native APIs (`MapRequestPayload`, `MapQueryString`, Serializer groups).
+- **Business helpers**: slug generation (`SluggerHelper`), French date formatting (`DateTimeHelper`), QueryBuilder builders (`QueryBuilderHelper`).
 - **French locale by default**: `config/services.yaml` (`locale: fr`) and translation catalogs in `translations/`.
 - **Strict code quality**: PHPStan level 6, PHP_CodeSniffer (PSR‑12), PHPUnit 12.
 
@@ -183,13 +184,14 @@ All common operations go through `make` (Composer/PHP commands run **inside** th
 ├── migrations/              # Doctrine migrations
 ├── public/                  # Document root (index.php, favicon…)
 ├── src/
-│   ├── Controller/          # Controllers (AbstractBaseController + HomepageController)
-│   ├── Entity/              # Doctrine entities (AbstractEntity)
-│   ├── Repository/          # Repositories (AbstractRepository)
-│   ├── Dto/                 # PaginationDto
-│   ├── Helper/              # DateTimeHelper, ClassConverterHelper
-│   ├── Trait/               # Timestampable
-│   ├── DataFixtures/        # AbstractFixtures
+│   ├── Controller/          # Controllers (base controllers, auth, admin, User API)
+│   ├── Entity/              # Doctrine entities (AbstractEntity, User)
+│   ├── Repository/          # Repositories (AbstractRepository, UserRepository)
+│   ├── Dto/                 # PaginationDto, UserPayload
+│   ├── Helper/              # DateTimeHelper, QueryBuilderHelper, SluggerHelper
+│   ├── Trait/               # SlugTrait, SoftDeleteTrait, Timestampable
+│   ├── DataFixtures/        # AbstractFixtures, UserFixtures
+│   ├── Story/               # Foundry stories (AppStory)
 │   └── Kernel.php
 ├── templates/               # Twig templates (base, layout, homepage)
 ├── assets/                  # Frontend sources (JS/CSS, importmap, Stimulus)
@@ -212,15 +214,18 @@ The goal of this starter kit is to **reduce boilerplate**: extend the base class
 | Class | Role |
 |---|---|
 | `App\Controller\AbstractBaseController` | Adds `createPaginationDto()`, `addSuccessMessage()`, `addWarningMessage()`, `addErrorMessage()`. |
+| `App\Controller\AbstractApiController` | Base for JSON REST APIs: `jsonResponse()`, `created()`, `noContent()`, `unprocessable()`. |
 | `App\Entity\AbstractEntity` | Provides `id` (SEQUENCE), `uuid` (Uuid v4) and the `Timestampable` trait. |
-| `App\Repository\AbstractRepository` | DQL helpers: `createOrUpdate()`, `remove()`, `addFieldLike()`, `addFieldAndWhere()`, `addTableJoin()`, `addPeriodWhere()`, `addRandomElements()`, `findAllPaginated()`. |
+| `App\Repository\AbstractRepository` | Persistence helpers: `createOrUpdate()`, `remove()`, `findOneByUuid()`, `paginate()`. |
 | `App\DataFixtures\AbstractFixtures` | Initializes a `Faker` generator (`fr_FR`) for fixtures. |
 
 ### Helpers & DTO
 
-- `App\Helper\DateTimeHelper` — `formatMonthYearFrench()` and French month constants.
-- `App\Helper\ClassConverterHelper` — `convertToClass()` to copy an object's properties onto another (via PropertyInfo / PropertyAccess).
-- `App\Dto\PaginationDto` — pagination payload (`page`, `limit`), compatible with Pagerfanta.
+- `App\Helper\DateTimeHelper` — `formatMonthYearFrench()` and `FRENCH_MONTHS` constants.
+- `App\Helper\SluggerHelper` — `slugify()` wrapper around Symfony's `AsciiSlugger` for manual slug generation.
+- `App\Helper\QueryBuilderHelper` — static Doctrine QueryBuilder builders: `addFieldLike()`, `addFieldAndWhere()`, `addTableJoin()`, `addPeriodWhere()`, `addRandomElements()`, `getCollectionFromQueryBuilder()`, `findAllPaginated()`.
+- `App\Dto\PaginationDto` — validated pagination payload (`page`, `limit`), compatible with Pagerfanta.
+- `App\Dto\UserPayload` — validated input DTO (`email`, `plainPassword`, `roles`) for the User API.
 
 ### Autowiring & service registration
 
