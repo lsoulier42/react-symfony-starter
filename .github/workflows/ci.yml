@@ -43,13 +43,6 @@ jobs:
           extensions: ctype, iconv, intl, mbstring, pdo_pgsql, pgsql, sodium, zip
           coverage: none
 
-      - name: Generate JWT keys (dev passphrase from .env)
-        run: |
-          mkdir -p config/jwt
-          passphrase="$(grep '^JWT_PASSPHRASE=' .env | cut -d= -f2)"
-          openssl genpkey -out config/jwt/private.pem -aes256 -pass "pass:${passphrase}" -pkeyopt rsa_keygen_bits:4096
-          openssl pkey -in config/jwt/private.pem -passin "pass:${passphrase}" -out config/jwt/public.pem -pubout
-
       - name: Cache Composer dependencies
         id: composer-cache
         uses: actions/cache@v4
@@ -59,6 +52,10 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Keys are gitignored; generate them with the configured dev passphrase (.env)
+      - name: Generate JWT keys
+        run: php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction
 
       - name: Code style (PHPCS)
         run: vendor/bin/phpcs
