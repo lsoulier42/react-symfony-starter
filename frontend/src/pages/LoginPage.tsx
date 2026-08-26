@@ -4,6 +4,7 @@ import { LogIn } from 'lucide-react';
 import { login } from '../api/auth';
 import { extractApiError } from '../api/client';
 import { useAuth } from '../auth/useAuth';
+import { LogoMark } from '../components/LogoMark';
 import { Alert, Button, Card, Field, Input } from '../components/ui';
 import { parseJwt } from '../lib/utils';
 
@@ -49,11 +50,23 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">Starter Kit</h1>
-          <p className="mt-1 text-sm text-slate-500">Connexion à votre espace</p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-app px-4">
+      {/* Soft brand glow */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background: 'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(108,140,255,0.10), transparent)',
+        }}
+      />
+
+      <div className="relative w-full max-w-md">
+        <div className="mb-8 flex flex-col items-center gap-3 text-center">
+          <LogoMark className="h-14 w-14 rounded-2xl shadow-card" />
+          <div>
+            <h1 className="text-xl font-bold text-ink">Starter Kit</h1>
+            <p className="mt-1 text-sm text-muted">Connexion à votre espace</p>
+          </div>
         </div>
 
         {state.registered && (
@@ -62,7 +75,7 @@ export function LoginPage() {
           </div>
         )}
 
-        <Card>
+        <Card className="p-6 sm:p-7">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <Alert kind="error">{error}</Alert>}
 
@@ -97,9 +110,9 @@ export function LoginPage() {
           </form>
         </Card>
 
-        <p className="mt-4 text-center text-sm text-slate-600">
+        <p className="mt-5 text-center text-sm text-muted">
           Pas encore de compte ?{' '}
-          <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link to="/register" className="font-semibold text-primary transition hover:text-primary-hover">
             Créer un compte
           </Link>
         </p>

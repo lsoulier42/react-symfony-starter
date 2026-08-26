@@ -339,6 +339,26 @@ npm run lint       # ESLint
   email search and status filter, enable/disable, promote/demote admin, delete with
   confirmation.
 
+### Design system
+
+The whole UI (user and admin) shares one strict dark design system, defined as
+Tailwind CSS 4 tokens in `src/index.css` (`@theme`):
+
+| Token | Value |
+|---|---|
+| App background / stacked surfaces | `#0e1117` · `#161a22` → `#1c212c` → `#232a38` |
+| Borders | `#262d3b` (subtle) · `#323c4f` (strong) |
+| Primary / hover / accent | `#6c8cff` · `#5276f2` · `#a78bfa` |
+| Semantics | success `#34d399` · warning `#fbbf24` · danger `#f87171` |
+| Text | `#e2e8f0` (ink) · `#8b93a5` (muted) · `#5c6474` (faint) |
+| Radii | 14px cards · 10px components · 0.6rem fields |
+| Shadows | `0 8px 24px rgba(0,0,0,.3)` cards · soft `0 4px 12px` |
+| Layout | sidebar 264px (icon bar < 992px) · content max 1320px · glass topbar (`backdrop-blur`) |
+
+Hover/active states use soft translucencies (`bg-primary/12`, `bg-white/5` …);
+cards have a slightly contrasted header, tables use uppercase `tracking-widest`
+headers, badges are pills and row actions are square icon buttons.
+
 ---
 
 ## 🗄 Database & migrations

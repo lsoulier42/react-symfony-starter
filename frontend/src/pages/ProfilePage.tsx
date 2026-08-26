@@ -3,7 +3,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { KeyRound, Save } from 'lucide-react';
 import { getMe, updateMe } from '../api/auth';
 import { extractApiError } from '../api/client';
-import { Alert, Badge, Button, Card, ErrorState, Field, Input, Spinner } from '../components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  ErrorState,
+  Field,
+  Input,
+  Spinner,
+} from '../components/ui';
 
 export function ProfilePage() {
   const queryClient = useQueryClient();
@@ -75,46 +85,43 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Mon profil</h1>
-        <p className="mt-1 text-sm text-slate-500">Consultez et modifiez vos informations personnelles.</p>
+        <h1 className="text-xl font-bold text-ink">Mon profil</h1>
+        <p className="mt-1 text-sm text-muted">Consultez et modifiez vos informations personnelles.</p>
       </div>
 
       <Card>
-        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <CardHeader title="Informations" />
+        <dl className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 sm:p-6">
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">E-mail</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-900">{me.email}</dd>
+            <dt className="text-xs font-medium uppercase tracking-widest text-faint">E-mail</dt>
+            <dd className="mt-1.5 text-sm font-semibold text-ink">{me.email}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Rôle</dt>
-            <dd className="mt-1 flex gap-1.5">
+            <dt className="text-xs font-medium uppercase tracking-widest text-faint">Rôle</dt>
+            <dd className="mt-1.5 flex flex-wrap gap-1.5">
               {me.roles.map((role) => (
-                <Badge key={role} tone={role === 'ROLE_ADMIN' ? 'indigo' : 'slate'}>
+                <Badge key={role} tone={role === 'ROLE_ADMIN' ? 'primary' : 'neutral'}>
                   {role}
                 </Badge>
               ))}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Identifiant</dt>
-            <dd className="mt-1 text-sm text-slate-700">{me.uuid}</dd>
+            <dt className="text-xs font-medium uppercase tracking-widest text-faint">Identifiant</dt>
+            <dd className="mt-1.5 font-mono text-xs text-muted">{me.uuid}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Statut du compte</dt>
-            <dd className="mt-1">
-              {me.isActive ? <Badge tone="emerald">Actif</Badge> : <Badge tone="red">Désactivé</Badge>}
+            <dt className="text-xs font-medium uppercase tracking-widest text-faint">Statut du compte</dt>
+            <dd className="mt-1.5">
+              {me.isActive ? <Badge tone="success">Actif</Badge> : <Badge tone="danger">Désactivé</Badge>}
             </dd>
           </div>
         </dl>
       </Card>
 
       <Card>
-        <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
-          <Save className="h-4 w-4 text-slate-400" aria-hidden />
-          Modifier mes informations
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <CardHeader title="Modifier mes informations" />
+        <form onSubmit={handleSubmit} className="space-y-4 p-5 sm:p-6">
           {success && <Alert kind="success">Profil mis à jour avec succès.</Alert>}
           {error && <Alert kind="error">{error}</Alert>}
 
@@ -131,9 +138,9 @@ export function ProfilePage() {
             </Field>
           </div>
 
-          <div className="border-t border-slate-200 pt-4">
-            <p className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-700">
-              <KeyRound className="h-4 w-4 text-slate-400" aria-hidden />
+          <div className="border-t border-line pt-4">
+            <p className="mb-3 flex items-center gap-2 text-sm font-medium text-muted">
+              <KeyRound className="h-4 w-4 text-faint" aria-hidden />
               Changer mon mot de passe (optionnel)
             </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
