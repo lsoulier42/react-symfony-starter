@@ -50,25 +50,4 @@ abstract class AbstractRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['uuid' => $uuid]);
     }
-
-    /**
-     * @param array<string, mixed> $criteria
-     * @param array<string, string>|null $orderBy
-     * @return array{items: array<array-key, object>, total: int, page: int, limit: int, pages: int}
-     */
-    public function paginate(int $page, int $limit, array $criteria = [], ?array $orderBy = null): array
-    {
-        $page = max(1, $page);
-        $limit = max(1, $limit);
-        $total = $this->count($criteria);
-        $items = $this->findBy($criteria, $orderBy ?? ['id' => 'ASC'], $limit, ($page - 1) * $limit);
-
-        return [
-            'items' => $items,
-            'total' => $total,
-            'page' => $page,
-            'limit' => $limit,
-            'pages' => (int) ceil($total / $limit),
-        ];
-    }
 }

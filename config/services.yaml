@@ -12,3 +12,6 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+    App\OpenApi\OpenApiFactoryDecorator:
+        decorates: api_platform.openapi.factory
+        arguments: ['@.inner']

@@ -2,14 +2,11 @@
 
 namespace App\Helper;
 
-use App\Dto\PaginationDto;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\Query\Expr\Orx;
 use Doctrine\ORM\QueryBuilder;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Pagerfanta;
 
 /**
  * Stateless helpers to build Doctrine QueryBuilder instances.
@@ -128,18 +125,5 @@ final class QueryBuilderHelper
         return $queryBuilder
             ->setMaxResults($numberElements)
             ->orderBy('rand');
-    }
-
-    /**
-     * @return Pagerfanta<mixed>
-     */
-    public static function findAllPaginated(PaginationDto $dto, QueryBuilder $queryBuilder): Pagerfanta
-    {
-        $adapter = new QueryAdapter($queryBuilder);
-        $pagerFanta = new Pagerfanta($adapter);
-        $pagerFanta->setMaxPerPage($dto->getLimit())
-            ->setCurrentPage($dto->getPage());
-
-        return $pagerFanta;
     }
 }

@@ -18,6 +18,8 @@
 
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
+/.phpunit.cache/
+###< symfony/phpunit-bridge ###
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 .idea
@@ -34,10 +36,4 @@
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
-
-###> symfony/asset-mapper ###
-/public/assets/
-/assets/vendor/
-###< symfony/asset-mapper ###
-
 CLAUDE.md
