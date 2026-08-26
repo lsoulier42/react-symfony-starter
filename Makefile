@@ -11,8 +11,9 @@ DOCKER_COMPOSE_DEV = docker compose
 install:
 	$(DOCKER_COMPOSE_DEV) build
 	$(MAKE) composer-install
-	$(MAKE) assets-install
+	$(MAKE) frontend-install
 	$(MAKE) start
+	$(MAKE) jwt
 
 composer-install:
 	$(DOCKER_COMPOSE_DEV) run --rm php bash -ci 'php -d memory_limit=4G bin/composer install'
@@ -35,14 +36,25 @@ connect:
 clear:
 	$(DOCKER_COMPOSE_DEV) exec php php ./bin/console cache:clear
 
-assets-install:
-	$(DOCKER_COMPOSE_DEV) run --rm php bash -ci 'php -d memory_limit=4G ./bin/console importmap:install'
+# Generate the Lexik JWT keypair (skipped when the keys already exist)
+jwt:
+	$(DOCKER_COMPOSE_DEV) exec php php ./bin/console lexik:jwt:generate-keypair --if-not-exists
 
-assets-compile:
-	$(DOCKER_COMPOSE_DEV) run --rm php bash -ci 'php -d memory_limit=4G ./bin/console asset-map:compile'
+# Frontend (React 19 + Vite + Tailwind) — run on the host, or `docker compose up -d frontend` for a containerized dev server
+frontend-install:
+	cd frontend && npm install
+
+frontend-dev:
+	cd frontend && npm run dev
+
+frontend-build:
+	cd frontend && npm run build
+
+frontend-lint:
+	cd frontend && npm run lint
 
 test:
-	$(DOCKER_COMPOSE_DEV) run --rm php bash -ci 'php ./bin/phpunit'
+	$(DOCKER_COMPOSE_DEV) exec php php ./bin/phpunit
 
 phpstan:
 	$(DOCKER_COMPOSE_DEV) run --rm php bash -ci 'php -d memory_limit=1G ./vendor/bin/phpstan analyse'
@@ -68,4 +80,4 @@ restart:
 destroy:
 	$(DOCKER_COMPOSE_DEV) down -v
 
-.PHONY: install composer-install composer-update start start-verbose stop connect clear assets-install assets-compile test phpstan cs csfix migrate fixtures logs restart destroy
+.PHONY: install composer-install composer-update start start-verbose stop connect clear jwt frontend-install frontend-dev frontend-build frontend-lint test phpstan cs csfix migrate fixtures logs restart destroy

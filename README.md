@@ -1,17 +1,21 @@
-<h1 align="center">Starter Kit — Symfony 8.1 · PHP 8.5 · Docker</h1>
+<h1 align="center">Starter Kit — Symfony 8.1 (API Platform 4) + React 19 · Docker</h1>
 
 <p align="center">
   <a href="https://www.php.net/releases/8.5/en.php"><img alt="PHP 8.5" src="https://img.shields.io/badge/PHP-8.5-777BB4?style=flat-square&logo=php&logoColor=white" /></a>
   <a href="https://symfony.com/releases/8.1"><img alt="Symfony 8.1" src="https://img.shields.io/badge/Symfony-8.1-000000?style=flat-square&logo=symfony&logoColor=white" /></a>
+  <a href="https://api-platform.com"><img alt="API Platform 4" src="https://img.shields.io/badge/API%20Platform-4-0e83cd?style=flat-square" /></a>
+  <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" /></a>
+  <a href="https://vite.dev"><img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white" /></a>
+  <a href="https://tailwindcss.com"><img alt="Tailwind CSS 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" /></a>
   <a href="https://www.postgresql.org/"><img alt="PostgreSQL 18" src="https://img.shields.io/badge/PostgreSQL-18-336791?style=flat-square&logo=postgresql&logoColor=white" /></a>
-  <a href="https://www.docker.com/"><img alt="Docker" src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" /></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-2ea44f?style=flat-square" /></a>
 </p>
 
 <p align="center">
-  Containerized <strong>Symfony 8.1</strong> application skeleton (PHP 8.5 FPM), ready for production,
-  with French locale by default, strict quality gates (PSR‑12 + PHPStan level 6)
-  and a set of opinionated base classes to get started quickly.
+  A decoupled starter kit: a containerized <strong>API-only Symfony 8.1</strong> backend
+  (PHP 8.5 FPM, <strong>API Platform 4</strong>, JWT auth) and a <strong>React 19</strong> SPA
+  (Vite, Tailwind CSS 4, lucide icons) — login, registration, user profile and
+  admin user-management screens included.
 </p>
 
 ---
@@ -21,15 +25,14 @@
 - [Overview](#-overview)
 - [Key features](#-key-features)
 - [Tech stack](#-tech-stack)
+- [Architecture](#-architecture)
 - [Prerequisites](#-prerequisites)
 - [Quick start](#-quick-start)
-- [Configuration](#-configuration)
-- [Commands (Makefile)](#-commands-makefile)
 - [Services & URLs](#-services--urls)
-- [Project structure](#-project-structure)
-- [Architecture & conventions](#-architecture--conventions)
+- [API reference](#-api-reference)
+- [Frontend](#-frontend)
 - [Database & migrations](#-database--migrations)
-- [Messenger & async emails](#-messenger--async-emails)
+- [Commands (Makefile)](#-commands-makefile)
 - [Tests](#-tests)
 - [Code quality](#-code-quality)
 - [Docker](#-docker)
@@ -39,28 +42,48 @@
 
 ## 📖 Overview
 
-This repository is a **starter kit** (starting point) for building a modern Symfony web application, fully running in Docker containers. It provides:
+This repository is a **starter kit** for building a modern web application with a
+separated API and frontend:
 
-- a reproducible development environment (PHP 8.5 FPM, Nginx, PostgreSQL 18, Mailpit) ;
-- a proven Symfony 8.1 setup (Doctrine ORM 3, Messenger, Mailer, AssetMapper, Stimulus, Twig, Security, Validator, Translator) ;
-- **base classes** (`AbstractBaseController`, `AbstractApiController`, `AbstractEntity`, `AbstractRepository`, `AbstractFixtures`) and **utilities** (`Helper/`, `Dto/`, `Trait/`, `Story/`) to speed up development ;
-- built-in code quality gates (PHPStan level 6, phpcs PSR‑12, PHPUnit 12).
+- a **backend** in Symfony 8.1 running in **API-only mode** with **API Platform 4**:
+  one `User` resource (admin CRUD), a public registration endpoint, a JWT login,
+  and a `/api/me` profile endpoint;
+- a **frontend** in **React 19 + Vite + Tailwind CSS 4 + lucide-react** with four
+  screens: **login**, **registration**, **user profile** (read/update own data) and
+  **admin user management** (search, pagination, enable/disable, promote/demote, delete);
+- the same production origin for the SPA and the API: Nginx serves the built React
+  app and proxies `/api` to PHP-FPM — **no CORS configuration needed**; in development,
+  the Vite dev server proxies `/api` to the Symfony container.
 
-> The project ships with a home page (`HomepageController`) plus a complete `User` example: authentication (login form, admin area) and a representative JSON CRUD API. The architecture stays "empty but structured" — build your own business entities on top.
+> The backend keeps the opinionated base classes (`AbstractEntity`,
+> `AbstractRepository`, traits, fixtures, helpers) and the strict quality gates
+> (PHPStan level 6, PHPCS PSR-12, PHPUnit 12). Build your own business entities
+> and screens on top.
 
 ---
 
 ## ✨ Key features
 
-- **Full containerization**: PHP (FPM), Nginx, PostgreSQL and Mailpit orchestrated via `docker compose`.
-- **Supervised Messenger workers**: asynchronous consumption of messages (emails, tasks) via `supervisord` in the PHP container.
-- **Frictionless local emails**: Mailpit captures all outgoing emails and provides a web-based debugging interface.
-- **Ready-to-use pagination**: Pagerfanta integration via `QueryBuilderHelper::findAllPaginated()` + `PaginationDto`.
-- **"Timestamped" entities & UUID**: `AbstractEntity` + `Trait\Timestampable` (automatic management of `createdAt`/`updatedAt` and a `Uuid` v4).
-- **Authentication & example entity**: `User` with login form, admin area and a JSON CRUD API built on Symfony's native APIs (`MapRequestPayload`, `MapQueryString`, Serializer groups).
-- **Business helpers**: slug generation (`SluggerHelper`), French date formatting (`DateTimeHelper`), QueryBuilder builders (`QueryBuilderHelper`).
-- **French locale by default**: `config/services.yaml` (`locale: fr`) and translation catalogs in `translations/`.
-- **Strict code quality**: PHPStan level 6, PHP_CodeSniffer (PSR‑12), PHPUnit 12.
+- **API-first backend**: API Platform 4 resources, `json`/JSON-LD formats, built-in
+  pagination (`totalItems`, `member`, `view.first/last/next`) and filtering.
+- **JWT authentication** (LexikJWTAuthenticationBundle): `POST /api/login` returns a
+  token; the `api` firewall is **stateless**; a custom `UserChecker` rejects disabled
+  accounts at authentication time.
+- **Public registration**: validated DTO (`RegisterInput`) with unique-email check,
+  password hashing and forced `ROLE_USER`.
+- **Profile endpoint**: `GET /api/me` / `PATCH /api/me` (update email, names and
+  optionally the password).
+- **Admin user management**: `GET/PATCH/DELETE /api/users` protected by `ROLE_ADMIN`
+  with email/name search filters and a boolean `isActive` filter.
+- **React 19 SPA**: TypeScript, React Router 7, TanStack Query 5, axios with a Bearer
+  interceptor and automatic 401 → `/login` redirect; Tailwind CSS 4 design system
+  with lucide icons; guards (`RequireAuth`, `RequireRole ROLE_ADMIN`).
+- **Same-origin in production**: Nginx serves the SPA and proxies the API, so there
+  is no CORS and no exposed credentials beyond the JWT in `localStorage`.
+- **Full containerization**: PHP 8.5 FPM, Nginx, PostgreSQL 18, Mailpit and an
+  optional Vite container (`node:24-alpine`).
+- **Strict quality gates**: PHPStan level 6, PHP_CodeSniffer (PSR-12), PHPUnit 12,
+  ESLint and `tsc` for the frontend.
 
 ---
 
@@ -70,100 +93,88 @@ This repository is a **starter kit** (starting point) for building a modern Symf
 |---|---|---|
 | Language | PHP (FPM) | **8.5** |
 | Framework | Symfony | **8.1** |
+| API | API Platform | **4.x** |
+| Auth | Lexik JWT (stateless) | **3.x** |
 | Database | PostgreSQL | **18** (`postgres:18.2-alpine`) |
+| ORM | Doctrine ORM / DBAL | **3.6** / **4.4** |
 | Web server | Nginx | **1.29** (`1.29.5-alpine`) |
 | Mail (dev) | Mailpit | `axllent/mailpit` |
-| ORM | Doctrine ORM / DBAL | **3.6** / **4.4** |
-| Pagination | Pagerfanta | **4.x** |
-| Frontend | AssetMapper + Stimulus + Bootstrap | Symfony 8.1 assets |
-| Quality | PHPStan / PHP_CodeSniffer / PHPUnit | **2.x** / **3.7** / **12** |
+| Frontend framework | React (+ TypeScript) | **19.x** |
+| Frontend tooling | Vite | **8.x** |
+| Styling | Tailwind CSS | **4.x** (`@tailwindcss/vite`) |
+| Icons | lucide-react | latest |
+| Data fetching | TanStack Query / axios | **5.x** / 1.x |
+| Routing | React Router | **7.x** |
+| Quality (back) | PHPStan / PHP_CodeSniffer / PHPUnit | **2.x** / **3.7** / **12** |
+| Quality (front) | ESLint / TypeScript | 9.x / 5.x |
+
+---
+
+## 🏗 Architecture
+
+```
+            ┌────────────────────────  browser  ────────────────────────┐
+            │                                                            │
+  DEV: Vite dev server (:5173, HMR)                   PROD: Nginx (:8081)
+  proxy /api ──────────────┐                              │
+       ┌───────────────────▼──────┐                       ├─ /    → frontend/dist (SPA)
+       │  Symfony 8.1 (API only)  │  ── /api ─────────────┘
+       │  API Platform 4          │  /api/login, /api/register
+       │  JWT (Lexik)             │  /api/me (profile)
+       │  Doctrine ORM 3          │  /api/users (admin CRUD)
+       │  PostgreSQL 18 · Mailpit │
+       └──────────────────────────┘
+```
+
+- **Monorepo**: the Symfony backend lives at the repository root; the React app
+  lives in [`frontend/`](frontend/).
+- Both environments are single-origin, so **no CORS** is required anywhere.
+- The SPA only renders screens; **every authorization is enforced server-side**
+  (firewall + API Platform `security` + `UserChecker`).
 
 ---
 
 ## 📋 Prerequisites
 
 - **Docker** ≥ 24 and **Docker Compose** (v2, included in the Docker CLI).
-- **Make** (the `make` utility) to run the `Makefile` recipes.
+- **Make** to run the `Makefile` recipes.
+- **Node.js** ≥ 22 and **npm** for the frontend recipes (or use the `frontend`
+  Docker service).
 - **Git** to clone the repository.
-- No local PHP/Composer/PostgreSQL installation is required: everything runs in the containers.
+- No local PHP/Composer/PostgreSQL installation is required: everything runs in
+  the containers.
 
-> ℹ️ On Linux, make sure your user belongs to the `docker` group (otherwise prefix the commands with `sudo`).
+> ℹ️ On Linux, make sure your user belongs to the `docker` group (otherwise prefix
+> the commands with `sudo`).
 
 ---
 
 ## 🚀 Quick start
 
 ```bash
-# 1. Clone the repository
-git clone git@github.com:lsoulier42/symfony-docker-starter.git
-cd symfony-docker-starter
+git clone <this-repository> react-symfony-starter
+cd react-symfony-starter
 
-# 2. Build the images, install the dependencies and start
+# 1. Build the images, install backend + frontend dependencies, start everything
+#    and generate the JWT keypair (skipped if already present)
 make install
 
-# 3. Open the application
-#    → http://localhost:8081
+# 2. Initialize the database
+make migrate
+make fixtures          # admin@example.com / password, user1..3@example.com / password, inactive@example.com / password
+
+# 3. Open the SPA (Vite dev server, proxies /api to the backend)
+#    → http://localhost:5173
+#    API documentation (Swagger UI) is served by the backend
+#    → http://localhost:8081/api/docs
 ```
 
-`make install` automatically runs: `docker compose build`, `composer install`, `importmap:install` and `docker compose up -d`.
+Sign in with `admin@example.com` / `password` (admin) or `user1@example.com` /
+`password` (regular user).
 
-To initialize the database (once the containers are running):
-
-```bash
-make connect                      # shell into the PHP container
-php bin/console doctrine:migrations:migrate
-```
-
----
-
-## ⚙️ Configuration
-
-All per-environment configuration is centralized in **`.env`** (committed default values) and can be overridden locally by **`.env.local`** (not versioned). The test environment uses **`.env.test`**.
-
-| Variable | Default | Description |
-|---|---|---|
-| `APP_ENV` | `dev` | Symfony environment (`dev` / `prod` / `test`). |
-| `APP_SECRET` | `6bd8b04b…` | Application secret key. |
-| `APP_VERSION` | `0.1.0` | Application version (exposed via the `app_version` parameter). |
-| `APP_PORT` | `8081` | Host port exposed by Nginx. |
-| `DATABASE_HOST` | `database` | PostgreSQL service name (Docker network). |
-| `DATABASE_PORT` | `5432` | PostgreSQL internal port. |
-| `DATABASE_USER` | `root` | PostgreSQL user. |
-| `DATABASE_PASSWORD` | `password` | PostgreSQL password. |
-| `DATABASE_NAME` | `symfony` | PostgreSQL database name. |
-| `DATABASE_URL` | `postgresql://…` | Doctrine DSN built from the variables above. |
-| `MAILER_DSN` | `smtp://mailer:1025` | Mailer transport (Mailpit). |
-| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Messenger async transport (Doctrine DBAL). |
-
-> The PostgreSQL database name is `symfony` (consistent between `.env` and the code).
-
----
-
-## 🛠 Commands (Makefile)
-
-All common operations go through `make` (Composer/PHP commands run **inside** the PHP container).
-
-| Command | Description |
-|---|---|
-| `make install` | Build images + `composer install` + assets + full start. |
-| `make start` | Starts the containers in the background. |
-| `make start-verbose` | Starts the containers and shows live logs. |
-| `make stop` | Stops and removes the containers (`docker compose down`). |
-| `make connect` | Opens a Bash shell in the PHP container. |
-| `make clear` | Clears the Symfony cache (`cache:clear`). |
-| `make composer-install` | `composer install` (high memory limit) in the container. |
-| `make composer-update` | `composer update -W` in the container. |
-| `make assets-install` | Installs frontend dependencies via `importmap:install`. |
-| `make assets-compile` | Compiles assets for production (`asset-map:compile`). |
-| `make test` | Runs the PHPUnit test suite in the container. |
-| `make phpstan` | Runs PHPStan static analysis (level 6). |
-| `make cs` | Runs PHP_CodeSniffer (PSR‑12). |
-| `make csfix` | Auto-fixes PSR‑12 violations (`phpcbf`). |
-| `make migrate` | Runs `doctrine:migrations:migrate` (`--no-interaction`). |
-| `make fixtures` | Loads the fixtures (`doctrine:fixtures:load --no-interaction`). |
-| `make logs` | Follows the container logs (`docker compose logs -f`). |
-| `make restart` | Restarts the containers. |
-| `make destroy` | Removes the containers and their volumes (`docker compose down -v`). |
+> The frontend runs through Vite on the host (`make frontend-dev`). For a fully
+> containerized dev environment, start the dedicated service instead:
+> `docker compose up -d frontend` → http://localhost:5173.
 
 ---
 
@@ -171,10 +182,82 @@ All common operations go through `make` (Composer/PHP commands run **inside** th
 
 | Service | URL / host | Notes |
 |---|---|---|
-| Application (dev) | `http://localhost:8081` | Served by Nginx + PHP‑FPM. |
+| Frontend (dev, Vite + HMR) | `http://localhost:5173` | React 19 SPA, proxies `/api`. |
+| Frontend (prod, built) | `http://localhost:8081` | Served by Nginx after `make frontend-build`. |
+| Backend API | `http://localhost:8081/api` | API Platform + custom endpoints. |
+| Swagger UI | `http://localhost:8081/api/docs` | Interactive API documentation. |
 | Mailpit (web interface) | `http://localhost:1181` | Dev email viewer. |
-| PostgreSQL (host) | `localhost:5532` | Port mapped from the `database` container. |
+| PostgreSQL (host) | `localhost:5532` | Mapped port from the `database` container. |
 | Mailpit SMTP (host) | `localhost:1126` | Mapped SMTP port (internal `1025`). |
+
+---
+
+## 🌐 API reference
+
+### Public endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/login` | JSON `{email, password}` → `{token}` (JWT, 1h TTL). |
+| `POST` | `/api/register` | `{email, plainPassword, firstName?, lastName?}` → 201 + user. | 
+
+### Authenticated endpoints
+
+| Method | Path | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/me` | any authenticated user | Current profile (`me:read`). |
+| `PATCH` | `/api/me` | any authenticated user | Update email/names, optional `plainPassword`. |
+
+### Admin endpoints (API Platform resource `User`)
+
+| Method | Path | Access | Description |
+|---|---|---|---|
+| `GET` | `/api/users` | `ROLE_ADMIN` | Paginated list. Filters: `email` (partial), `isActive` (`true`/`false`). Pagination: `page`, `itemsPerPage` (max 100). |
+| `GET` | `/api/users/{id}` | `ROLE_ADMIN` | Single user. |
+| `PATCH` | `/api/users/{id}` | `ROLE_ADMIN` | Update `email`, `firstName`, `lastName`, `roles`, `isActive`. |
+| `DELETE` | `/api/users/{id}` | `ROLE_ADMIN` | Delete the account (204). |
+
+Response shape of the collection (JSON-LD):
+
+```json
+{
+  "@context": "/api/contexts/User",
+  "@id": "/api/users",
+  "@type": "Collection",
+  "totalItems": 42,
+  "member": [ { "@id": "/api/users/1", "email": "…", "roles": ["ROLE_USER"], "isActive": true } ],
+  "view": { "@id": "/api/users?itemsPerPage=10&page=1", "first": "…", "last": "…", "next": "…" }
+}
+```
+
+Error handling: validation failures return **422** with
+`{"violations": [{"propertyPath": "email", "message": "…"}]}`; bad credentials
+return **401**; missing admin rights return **403**. The `password` hash is never
+serialized.
+
+Auth flow for the SPA: `POST /api/login` → store the JWT in `localStorage`
+(`starter_token`) → the axios instance attaches `Authorization: Bearer <token>` →
+any 401 clears the token and redirects to `/login`.
+
+---
+
+## ⚙️ Configuration
+
+All per-environment configuration is centralized in **`.env`** (committed defaults,
+overridable via `.env.local`, not versioned). The test environment uses `.env.test`.
+
+| Variable | Default | Description |
+|---|---|---|
+| `APP_ENV` | `dev` | Symfony environment (`dev` / `prod` / `test`). |
+| `APP_SECRET` | `6bd8b04b…` | Application secret key. |
+| `APP_PORT` | `8081` | Host port exposed by Nginx. |
+| `FRONTEND_PORT` | `5173` | Host port exposed by the Vite dev server. |
+| `DATABASE_*` | `root/password/symfony` | PostgreSQL credentials and database name. |
+| `DATABASE_URL` | `postgresql://…` | Doctrine DSN built from the variables above. |
+| `JWT_SECRET_KEY` / `JWT_PUBLIC_KEY` | `config/jwt/*.pem` | Lexik JWT keypair paths (generated by `make jwt`). |
+| `JWT_PASSPHRASE` | random | Lexik JWT passphrase. |
+| `MAILER_DSN` | `smtp://mailer:1025` | Mailer transport (Mailpit). |
+| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Messenger async transport (Doctrine DBAL). |
 
 ---
 
@@ -183,28 +266,39 @@ All common operations go through `make` (Composer/PHP commands run **inside** th
 ```
 .
 ├── bin/                      # Executables (console, composer, phpunit)
-├── config/                  # Symfony configuration (packages/, services.yaml, routes…)
+├── config/                   # Symfony configuration
+│   ├── packages/
+│   │   ├── api_platform.yaml # API Platform 4 (pagination, cache headers)
+│   │   └── security.yaml     # Stateless `api` firewall (jwt + json_login)
+│   └── routes.yaml           # /api/login route + attribute routes
 ├── docker/
-│   ├── db/                  # PostgreSQL data volume
-│   ├── nginx/default.conf   # Nginx configuration (PHP‑FPM, front controller)
-│   └── php/                 # PHP Dockerfile, supervisord (Messenger workers), entrypoint
-├── migrations/              # Doctrine migrations
-├── public/                  # Document root (index.php, favicon…)
+│   ├── nginx/default.conf    # SPA static + /api → PHP-FPM
+│   └── php/                  # PHP 8.5 image, supervisord, entrypoint
+├── frontend/                 # React 19 SPA (Vite + Tailwind 4 + lucide)
+│   ├── src/
+│   │   ├── api/              # axios client, typed auth/users services
+│   │   ├── auth/             # AuthContext, useAuth, RequireAuth/RequireRole
+│   │   ├── components/       # ui.tsx design-system primitives
+│   │   ├── layouts/          # AppLayout (header, role-aware nav)
+│   │   ├── pages/            # Login, Register, Profile, admin/Users
+│   │   └── lib/              # utils (cn, parseJwt, formatDate…)
+│   ├── vite.config.ts        # React + Tailwind plugins, /api proxy
+│   └── package.json
+├── migrations/               # Doctrine migrations
+├── public/                   # Symfony front controller (API only)
 ├── src/
-│   ├── Controller/          # Controllers (base controllers, auth, admin, User API)
-│   ├── Entity/              # Doctrine entities (AbstractEntity, User)
-│   ├── Repository/          # Repositories (AbstractRepository, UserRepository)
-│   ├── Dto/                 # PaginationDto, UserPayload
-│   ├── Helper/              # DateTimeHelper, QueryBuilderHelper, SluggerHelper
-│   ├── Trait/               # SlugTrait, SoftDeleteTrait, Timestampable
-│   ├── DataFixtures/        # AbstractFixtures, UserFixtures
-│   ├── Story/               # Foundry stories (AppStory)
+│   ├── Controller/           # RegistrationController, MeController
+│   ├── Entity/               # AbstractEntity, User (API Platform resource)
+│   ├── Repository/           # AbstractRepository, UserRepository
+│   ├── Dto/                  # RegisterInput, MePayload (validated inputs)
+│   ├── Security/             # UserChecker (rejects disabled accounts)
+│   ├── OpenApi/              # JWT security scheme for Swagger UI
+│   ├── DataFixtures/         # Admin + users fixtures
 │   └── Kernel.php
-├── templates/               # Twig templates (base, layout, homepage)
-├── assets/                  # Frontend sources (JS/CSS, importmap, Stimulus)
-├── tests/                   # PHPUnit tests (bootstrap.php)
-├── translations/            # Translation catalogs (messages+intl-icu.fr.yaml)
-├── docker-compose.yaml
+├── tests/
+│   ├── AbstractApiTestCase.php  # ApiTestCase + Foundry (ResetDatabase)
+│   └── Api/                    # Login, Registration, Me, AdminUsers tests
+├── docker-compose.yaml        # database, php, nginx, frontend (dev), mailer
 ├── Makefile
 ├── composer.json
 └── phpstan.dist.neon / phpcs.xml.dist / phpunit.xml.dist
@@ -212,144 +306,142 @@ All common operations go through `make` (Composer/PHP commands run **inside** th
 
 ---
 
-## 🏗 Architecture & conventions
+## 🖥 Frontend
 
-The goal of this starter kit is to **reduce boilerplate**: extend the base classes rather than reimplementing everything.
+The SPA lives in [`frontend/`](frontend/) and is kept intentionally small:
 
-### Base classes to extend
-
-| Class | Role |
+| Area | Stack |
 |---|---|
-| `App\Controller\AbstractBaseController` | Adds `createPaginationDto()`, `addSuccessMessage()`, `addWarningMessage()`, `addErrorMessage()`. |
-| `App\Controller\AbstractApiController` | Base for JSON REST APIs: `jsonResponse()`, `created()`, `noContent()`, `unprocessable()`. |
-| `App\Entity\AbstractEntity` | Provides `id` (SEQUENCE), `uuid` (Uuid v4) and the `Timestampable` trait. |
-| `App\Repository\AbstractRepository` | Persistence helpers: `createOrUpdate()`, `remove()`, `findOneByUuid()`, `paginate()`. |
-| `App\DataFixtures\AbstractFixtures` | Initializes a `Faker` generator (`fr_FR`) for fixtures. |
+| Build | Vite 8 + TypeScript strict |
+| UI | Tailwind CSS 4 (`@import "tailwindcss"` + `@theme`), lucide-react icons |
+| Routing | React Router 7 (`/login`, `/register`, `/profile`, `/admin/users`) |
+| Server state | TanStack Query 5 (`useQuery`/`useMutation`, cache invalidation) |
+| HTTP | axios instance (`/api` base URL, Bearer interceptor, 401 → `/login`) |
+| Auth | `AuthProvider` (JWT in `localStorage`), `useAuth`, `RequireAuth` / `RequireRole` |
 
-### Helpers & DTO
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173 (proxies /api → http://localhost:8081)
+npm run build      # tsc --noEmit && vite build → dist/ (served by Nginx in prod)
+npm run lint       # ESLint
+```
 
-- `App\Helper\DateTimeHelper` — `formatMonthYearFrench()` and `FRENCH_MONTHS` constants.
-- `App\Helper\SluggerHelper` — `slugify()` wrapper around Symfony's `AsciiSlugger` for manual slug generation.
-- `App\Helper\QueryBuilderHelper` — static Doctrine QueryBuilder builders: `addFieldLike()`, `addFieldAndWhere()`, `addTableJoin()`, `addPeriodWhere()`, `addRandomElements()`, `getCollectionFromQueryBuilder()`, `findAllPaginated()`.
-- `App\Dto\PaginationDto` — validated pagination payload (`page`, `limit`), compatible with Pagerfanta.
-- `App\Dto\UserPayload` — validated input DTO (`email`, `plainPassword`, `roles`) for the User API.
+### Screens
 
-### Autowiring & service registration
-
-`config/services.yaml` enables **autowiring** and **autoconfiguration** for the `App\` prefix. Everything under `src/` is registered automatically **except**:
-
-- `src/Entity/` (Doctrine entities, intentionally excluded) ;
-- `src/Kernel.php` ;
-- `src/DependencyInjection/`.
-
-### Locale & translations
-
-The default locale is **`fr`** (`config/services.yaml`). User-facing strings should live in the `translations/` catalogs (currently `messages+intl-icu.fr.yaml`) rather than being hardcoded.
+- **Login** (`/login`) — email + password, redirect by role (admin → `/admin/users`,
+  user → `/profile`), sign-up link.
+- **Registration** (`/register`) — email, optional first/last name, password +
+  confirmation; success redirects to login with a banner.
+- **Profile** (`/profile`, `RequireAuth`) — `GET /api/me` data, edit form
+  (`PATCH /api/me`), optional password change.
+- **Users** (`/admin/users`, `RequireAuth` + `ROLE_ADMIN`) — paginated table with
+  email search and status filter, enable/disable, promote/demote admin, delete with
+  confirmation.
 
 ---
 
 ## 🗄 Database & migrations
 
-The connection is driven by `DATABASE_URL` (Doctrine DBAL 4). ORM mapping uses PHP attributes (`type: attribute`) under `src/Entity`.
+The connection is driven by `DATABASE_URL` (Doctrine DBAL 4). ORM mapping uses PHP
+attributes (`type: attribute`) under `src/Entity`.
 
 ```bash
 make connect                                   # PHP shell
 
-# Create the schema from the migrations
-php bin/console doctrine:migrations:migrate
-
-# Generate a new migration after modifying an entity
-php bin/console make:migration
-
-# Load the fixtures (if implemented)
-php bin/console doctrine:fixtures:load
+php bin/console doctrine:migrations:migrate    # apply
+php bin/console make:entity                    # modify an entity, then:
+php bin/console make:migration                 # generate the migration
+php bin/console doctrine:fixtures:load         # load fixtures
 ```
 
-> Shortcuts: `make migrate` and `make fixtures` run the same commands with `--no-interaction`.
-
-> In the `test` environment, Doctrine automatically suffixes the database name (`_test…`) to isolate data.
+> Shortcuts: `make migrate` and `make fixtures` run the same commands with
+> `--no-interaction`. In the `test` environment, Doctrine automatically suffixes
+> the database name (`_test…`) to isolate data.
 
 ---
 
-## ✉️ Messenger & async emails
+## 🛠 Commands (Makefile)
 
-- `config/packages/messenger.yaml` defines the **`async`** transport (Doctrine DBAL, `MESSENGER_TRANSPORT_DSN`) and a **`failed`** transport (Doctrine DBAL, `failed` queue).
-- `Symfony\Component\Mailer\Messenger\SendEmailMessage` is routed to `async`: **emails are sent asynchronously** (via Mailpit in dev).
-- Workers are supervised by **`supervisord`** in the PHP container (`docker/php/messenger-workers.conf` + `docker/php/run_php.sh`): one worker consumes the `async` queue, with `autorestart` enabled and an hourly restart via `--time-limit=3600`.
-
-Inspect/retry the queues when needed:
-
-```bash
-php bin/console messenger:failed:show
-php bin/console messenger:failed:retry
-```
+| Command | Description |
+|---|---|
+| `make install` | Build images + `composer install` + `npm install` + start + generate JWT keys. |
+| `make start` / `make stop` / `make restart` | Start / stop / restart the containers. |
+| `make connect` | Shell in the PHP container. |
+| `make clear` | `cache:clear` in the PHP container. |
+| `make jwt` | Generate the Lexik JWT keypair (skipped if it exists). |
+| `make frontend-install` | `npm install` in `frontend/`. |
+| `make frontend-dev` | Start the Vite dev server (HMR) on `:5173`. |
+| `make frontend-build` | Type-check and build the SPA into `frontend/dist`. |
+| `make frontend-lint` | ESLint on the SPA. |
+| `make composer-install` / `make composer-update` | Composer in the PHP container. |
+| `make migrate` / `make fixtures` | Migrations / fixtures (`--no-interaction`). |
+| `make test` | PHPUnit suite in the container. |
+| `make phpstan` | PHPStan static analysis (level 6). |
+| `make cs` / `make csfix` | PHP_CodeSniffer (PSR-12) / auto-fix. |
+| `make logs` | Follow container logs. |
+| `make destroy` | Remove containers and volumes (`docker compose down -v`). |
 
 ---
 
 ## 🧪 Tests
 
-PHPUnit 12 is configured via `phpunit.xml.dist` (bootstrap `tests/bootstrap.php`, `SymfonyTestsListener` listener). The test environment is forced via `APP_ENV=test`.
+PHPUnit 12 is configured via `phpunit.xml.dist`. Tests use
+[`ApiTestCase`](https://api-platform.com/docs/core/testing/) (API Platform test
+client) plus Zenstruck Foundry (`ResetDatabase` + `Factories`).
 
 ```bash
-make connect
-
-php bin/phpunit                              # the whole suite
-php bin/phpunit tests/path/to/SomeTest.php   # a single file
-php bin/phpunit --filter testMethodName      # a single method
+make test
 ```
 
-> Shortcut: `make test` runs the whole suite in the container.
-
-Coverage is declared on `src/` (`<directory suffix=".php">src</directory>`).
-
----
+Coverage is declared on `src/` (`<source>`). The suite covers the whole API:
+registration (201, 422 duplicates/invalid payloads, forced role), login (token,
+401 wrong credentials, 401 disabled account), profile (`/api/me` GET/PATCH,
+password change, email conflict) and admin user management (401/403 guards,
+pagination, filters, enable/disable, role change, delete).
 
 ## 🔍 Code quality
 
-Three quality gates are configured and must be **green before any commit**:
-
 | Tool | Command | Configuration |
 |---|---|---|
-| Static analysis | `vendor/bin/phpstan analyse` | `phpstan.dist.neon` — **level 6** (paths: `bin/`, `config/`, `public/`, `src/`, `tests/`). |
-| Code style | `vendor/bin/phpcs` | `phpcs.xml.dist` — **PSR‑12** rule. |
-| Auto-fix | `vendor/bin/phpcbf` | Automatically fixes detected PSR‑12 violations. |
+| Static analysis (PHP) | `vendor/bin/phpstan analyse` | `phpstan.dist.neon` — level 6. |
+| Code style (PHP) | `vendor/bin/phpcs` | `phpcs.xml.dist` — PSR-12. |
+| Unit/API tests | `php bin/phpunit` | `phpunit.xml.dist` — PHPUnit 12. |
+| Lint (frontend) | `npm run lint` (in `frontend/`) | ESLint (typescript-eslint, react-hooks). |
+| Types/build (frontend) | `npm run build` (in `frontend/`) | `tsc --noEmit` + `vite build`. |
 
-Run all the gates:
-
-```bash
-make connect
-vendor/bin/phpstan analyse
-vendor/bin/phpcs
-vendor/bin/phpcbf   # if fixes are needed
-php bin/phpunit
-```
-
-> Shortcuts: `make phpstan`, `make cs`, `make csfix` and `make test` do the same without opening a shell.
+All gates must be green before committing.
 
 ---
 
 ## 🐳 Docker
 
-Orchestration is described in `docker-compose.yaml` (4 services):
+Orchestration is described in `docker-compose.yaml` (5 services):
 
 | Service | Image / build | Role |
 |---|---|---|
 | `database` | `postgres:18.2-alpine` | PostgreSQL 18, `pg_isready` healthcheck, persistent volume. |
-| `php` | build `docker/php` | PHP 8.5 FPM + Composer + Xdebug + extensions (pgsql, intl, apcu, sodium…). Supervisord manages the Messenger workers (FPM runs alongside). |
-| `nginx` | `nginx:1.29.5-alpine` | FPM reverse proxy, `public/index.php` front controller. |
+| `php` | build `docker/php` | PHP 8.5 FPM + Composer + Xdebug + extensions (pgsql, intl, apcu, sodium…). Supervisord manages the Messenger workers. |
+| `nginx` | `nginx:1.29.5-alpine` | Serves the built SPA and proxies `/api` → PHP-FPM. |
+| `frontend` | `node:24-alpine` (dev) | Vite dev server with HMR (optional; the host `npm run dev` works too). |
 | `mailer` | `axllent/mailpit` | SMTP sink + web interface. |
 
 Notable points:
 
-- The PHP image is built from `php:8.5-fpm` with `install-php-extensions` for reproducible builds.
+- The PHP image is built from `php:8.5-fpm` with `install-php-extensions` for
+  reproducible builds.
 - The `docker` user (NOPASSWD sudo) avoids permission issues with mounted volumes.
-- `php` depends on `database` (`service_healthy` condition); `nginx` depends on `php`.
+- `php` depends on `database` (`service_healthy` condition); `nginx` and
+  `frontend` depend on `php`.
+- The frontend container keeps `node_modules` in a named volume so the dev-server
+  install matches the container's libc (musl) — the host and container installs
+  never clash.
 
-To rebuild from scratch (e.g. after a PHP version change):
+To rebuild from scratch:
 
 ```bash
-docker compose down -v      # also removes volumes (DATABASE LOST)
-make install                # rebuild + install + start
+docker compose down -v      # also removes volumes (DATABASE + frontend node_modules LOST)
+make install
 ```
 
 ---
