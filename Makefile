@@ -38,7 +38,7 @@ clear:
 
 # Generate the Lexik JWT keypair (skipped when the keys already exist)
 jwt:
-	$(DOCKER_COMPOSE_DEV) exec php php ./bin/console lexik:jwt:generate-keypair --if-not-exists
+	$(DOCKER_COMPOSE_DEV) exec php php ./bin/console lexik:jwt:generate-keypair --skip-if-exists
 
 # Frontend (React 19 + Vite + Tailwind) — run on the host, or `docker compose up -d frontend` for a containerized dev server
 frontend-install:
