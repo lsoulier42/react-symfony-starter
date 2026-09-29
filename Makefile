@@ -74,10 +74,13 @@ fixtures:
 logs:
 	$(DOCKER_COMPOSE_DEV) logs -f
 
+worker-logs:
+	$(DOCKER_COMPOSE_DEV) logs -f worker
+
 restart:
 	$(DOCKER_COMPOSE_DEV) restart
 
 destroy:
 	$(DOCKER_COMPOSE_DEV) down -v
 
-.PHONY: install composer-install composer-update start start-verbose stop connect clear jwt frontend-install frontend-dev frontend-build frontend-lint test phpstan cs csfix migrate fixtures logs restart destroy
+.PHONY: install composer-install composer-update start start-verbose stop connect clear jwt frontend-install frontend-dev frontend-build frontend-lint test phpstan cs csfix migrate fixtures logs worker-logs restart destroy

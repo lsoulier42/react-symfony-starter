@@ -16,15 +16,46 @@ services:
       POSTGRES_USER: "${DATABASE_USER}"
       POSTGRES_DB: "${DATABASE_NAME}"
 
+  # FrankenPHP = serveur web (Caddy) + PHP embarqué.
+  # Sert l'API Symfony (/api) et la SPA buildée (frontend/dist) sur la même origine.
   php:
     build:
-      context: ./docker/php
+      context: ./docker/frankenphp
+      args:
+        UID: "${HOST_UID:-1000}"
+        GID: "${HOST_GROUP_ID:-1000}"
     restart: unless-stopped
+    tty: true
     healthcheck:
-      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/9000'"]
-      interval: 2s
-      timeout: 3s
-      retries: 15
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8080/api/docs"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    volumes:
+      - ".:/var/www/html"
+      - "~/.composer:/home/docker/.composer"
+      - "~/.ssh:/home/docker/.ssh"
+      - "./docker/frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro"
+    ports:
+      - "${APP_PORT}:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # Consomme les messages asynchrones (remplace l'ancien supervisord de l'image PHP).
+  worker:
+    build:
+      context: ./docker/frankenphp
+      args:
+        UID: "${HOST_UID:-1000}"
+        GID: "${HOST_GROUP_ID:-1000}"
+    restart: unless-stopped
+    # L'image FrankenPHP embarque un healthcheck (API admin Caddy) inutile pour un worker CLI.
+    healthcheck:
+      disable: true
+    entrypoint: ["php"]
+    command: ["bin/console", "messenger:consume", "async", "--memory-limit=192M", "--time-limit=3600", "-vv"]
     volumes:
       - ".:/var/www/html"
       - "~/.composer:/home/docker/.composer"
@@ -33,27 +64,15 @@ services:
       database:
         condition: service_healthy
 
-  nginx:
-    image: nginx:1.29.5-alpine
-    restart: unless-stopped
-    ports:
-      - "${APP_PORT}:80"
-    volumes:
-      - ".:/var/www/html"
-      - "./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf"
-    depends_on:
-      php:
-        condition: service_healthy
-
   # Dev only: Vite dev server with HMR. The host `npm run dev` works too.
-  # Production assets are built with `make frontend-build` and served by nginx.
+  # Production assets are built with `make frontend-build` and served by FrankenPHP.
   frontend:
     image: node:24-alpine
     restart: unless-stopped
     working_dir: /app
     command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0"
     environment:
-      VITE_API_PROXY_TARGET: http://nginx:80
+      VITE_API_PROXY_TARGET: http://php:8080
     ports:
       - "${FRONTEND_PORT}:5173"
     volumes:
