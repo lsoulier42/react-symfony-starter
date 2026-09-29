@@ -2,6 +2,7 @@
 
 <p align="center">
   <a href="https://www.php.net/releases/8.5/en.php"><img alt="PHP 8.5" src="https://img.shields.io/badge/PHP-8.5-777BB4?style=flat-square&logo=php&logoColor=white" /></a>
+  <a href="https://frankenphp.dev"><img alt="FrankenPHP" src="https://img.shields.io/badge/FrankenPHP-1.12-0B5C6B?style=flat-square" /></a>
   <a href="https://symfony.com/releases/8.1"><img alt="Symfony 8.1" src="https://img.shields.io/badge/Symfony-8.1-000000?style=flat-square&logo=symfony&logoColor=white" /></a>
   <a href="https://api-platform.com"><img alt="API Platform 4" src="https://img.shields.io/badge/API%20Platform-4-0e83cd?style=flat-square" /></a>
   <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" /></a>
@@ -14,7 +15,7 @@
 
 <p align="center">
   A decoupled starter kit: a containerized <strong>API-only Symfony 8.1</strong> backend
-  (PHP 8.5 FPM, <strong>API Platform 4</strong>, JWT auth) and a <strong>React 19</strong> SPA
+  (PHP 8.5 on <strong>FrankenPHP</strong>, <strong>API Platform 4</strong>, JWT auth) and a <strong>React 19</strong> SPA
   (Vite, Tailwind CSS 4, lucide icons) — login, registration, user profile and
   admin user-management screens included.
 </p>
@@ -52,9 +53,9 @@ separated API and frontend:
 - a **frontend** in **React 19 + Vite + Tailwind CSS 4 + lucide-react** with four
   screens: **login**, **registration**, **user profile** (read/update own data) and
   **admin user management** (search, pagination, enable/disable, promote/demote, delete);
-- the same production origin for the SPA and the API: Nginx serves the built React
-  app and proxies `/api` to PHP-FPM — **no CORS configuration needed**; in development,
-  the Vite dev server proxies `/api` to the Symfony container.
+- the same production origin for the SPA and the API: FrankenPHP serves the built React
+  app and runs the Symfony front controller — **no CORS configuration needed**; in development,
+  the Vite dev server proxies `/api` to the FrankenPHP container.
 
 > The backend keeps the opinionated base classes (`AbstractEntity`,
 > `AbstractRepository`, traits, fixtures, helpers) and the strict quality gates
@@ -79,10 +80,10 @@ separated API and frontend:
 - **React 19 SPA**: TypeScript, React Router 7, TanStack Query 5, axios with a Bearer
   interceptor and automatic 401 → `/login` redirect; Tailwind CSS 4 design system
   with lucide icons; guards (`RequireAuth`, `RequireRole ROLE_ADMIN`).
-- **Same-origin in production**: Nginx serves the SPA and proxies the API, so there
+- **Same-origin in production**: FrankenPHP serves the SPA and runs the API, so there
   is no CORS and no exposed credentials beyond the JWT in `localStorage`.
-- **Full containerization**: PHP 8.5 FPM, Nginx, PostgreSQL 18, Mailpit and an
-  optional Vite container (`node:24-alpine`).
+- **Full containerization**: FrankenPHP (Caddy + PHP 8.5), a dedicated Messenger worker,
+  PostgreSQL 18, Mailpit and an optional Vite container (`node:24-alpine`).
 - **Strict quality gates**: PHPStan level 6, PHP_CodeSniffer (PSR-12), PHPUnit 12,
   ESLint and `tsc` for the frontend.
 
@@ -92,13 +93,13 @@ separated API and frontend:
 
 | Area | Technology | Version |
 |---|---|---|
-| Language | PHP (FPM) | **8.5** |
+| Language | PHP (FrankenPHP) | **8.5** |
 | Framework | Symfony | **8.1** |
 | API | API Platform | **4.x** |
 | Auth | Lexik JWT (stateless) | **3.x** |
 | Database | PostgreSQL | **18** (`postgres:18.2-alpine`) |
 | ORM | Doctrine ORM / DBAL | **3.6** / **4.4** |
-| Web server | Nginx | **1.29** (`1.29.5-alpine`) |
+| App server | FrankenPHP (Caddy) | **1.12** (`1.12.7-php8.5`) |
 | Mail (dev) | Mailpit | `axllent/mailpit` |
 | Frontend framework | React (+ TypeScript) | **19.x** |
 | Frontend tooling | Vite | **8.x** |
@@ -116,7 +117,7 @@ separated API and frontend:
 ```
             ┌────────────────────────  browser  ────────────────────────┐
             │                                                            │
-  DEV: Vite dev server (:5173, HMR)                   PROD: Nginx (:8081)
+  DEV: Vite dev server (:5173, HMR)               PROD: FrankenPHP (:8081)
   proxy /api ──────────────┐                              │
        ┌───────────────────▼──────┐                       ├─ /    → frontend/dist (SPA)
        │  Symfony 8.1 (API only)  │  ── /api ─────────────┘
@@ -184,7 +185,7 @@ Sign in with `admin@example.com` / `password` (admin) or `user1@example.com` /
 | Service | URL / host | Notes |
 |---|---|---|
 | Frontend (dev, Vite + HMR) | `http://localhost:5173` | React 19 SPA, proxies `/api`. |
-| Frontend (prod, built) | `http://localhost:8081` | Served by Nginx after `make frontend-build`. |
+| Frontend (prod, built) | `http://localhost:8081` | Served by FrankenPHP after `make frontend-build`. |
 | Backend API | `http://localhost:8081/api` | API Platform + custom endpoints. |
 | Swagger UI | `http://localhost:8081/api/docs` | Interactive API documentation. |
 | Mailpit (web interface) | `http://localhost:1181` | Dev email viewer. |
@@ -251,7 +252,7 @@ overridable via `.env.local`, not versioned). The test environment uses `.env.te
 |---|---|---|
 | `APP_ENV` | `dev` | Symfony environment (`dev` / `prod` / `test`). |
 | `APP_SECRET` | `6bd8b04b…` | Application secret key. |
-| `APP_PORT` | `8081` | Host port exposed by Nginx. |
+| `APP_PORT` | `8081` | Host port exposed by FrankenPHP. |
 | `FRONTEND_PORT` | `5173` | Host port exposed by the Vite dev server. |
 | `DATABASE_*` | `root/password/symfony` | PostgreSQL credentials and database name. |
 | `DATABASE_URL` | `postgresql://…` | Doctrine DSN built from the variables above. |
@@ -273,8 +274,7 @@ overridable via `.env.local`, not versioned). The test environment uses `.env.te
 │   │   └── security.yaml     # Stateless `api` firewall (jwt + json_login)
 │   └── routes.yaml           # /api/login route + attribute routes
 ├── docker/
-│   ├── nginx/default.conf    # SPA static + /api → PHP-FPM
-│   └── php/                  # PHP 8.5 image, supervisord, entrypoint
+│   └── frankenphp/           # Image FrankenPHP : Caddyfile (SPA + /api), conf.d, Dockerfile
 ├── frontend/                 # React 19 SPA (Vite + Tailwind 4 + lucide)
 │   ├── src/
 │   │   ├── api/              # axios client, typed auth/users services
@@ -299,7 +299,7 @@ overridable via `.env.local`, not versioned). The test environment uses `.env.te
 ├── tests/
 │   ├── AbstractApiTestCase.php  # ApiTestCase + Foundry (ResetDatabase)
 │   └── Api/                    # Login, Registration, Me, AdminUsers tests
-├── docker-compose.yaml        # database, php, nginx, frontend (dev), mailer
+├── docker-compose.yaml        # database, php (FrankenPHP), worker, frontend (dev), mailer
 ├── Makefile
 ├── composer.json
 └── phpstan.dist.neon / phpcs.xml.dist / phpunit.xml.dist
@@ -324,7 +324,7 @@ The SPA lives in [`frontend/`](frontend/) and is kept intentionally small:
 cd frontend
 npm install
 npm run dev        # http://localhost:5173 (proxies /api → http://localhost:8081)
-npm run build      # tsc --noEmit && vite build → dist/ (served by Nginx in prod)
+npm run build      # tsc --noEmit && vite build → dist/ (served by FrankenPHP in prod)
 npm run lint       # ESLint
 ```
 
@@ -400,7 +400,8 @@ php bin/console doctrine:fixtures:load         # load fixtures
 | `make test` | PHPUnit suite in the container. |
 | `make phpstan` | PHPStan static analysis (level 6). |
 | `make cs` / `make csfix` | PHP_CodeSniffer (PSR-12) / auto-fix. |
-| `make logs` | Follow container logs. |
+| `make logs` | Follow container logs (FrankenPHP included). |
+| `make worker-logs` | Follow the Messenger worker logs only. |
 | `make destroy` | Remove containers and volumes (`docker compose down -v`). |
 
 ---
@@ -442,18 +443,24 @@ Orchestration is described in `docker-compose.yaml` (5 services):
 | Service | Image / build | Role |
 |---|---|---|
 | `database` | `postgres:18.2-alpine` | PostgreSQL 18, `pg_isready` healthcheck, persistent volume. |
-| `php` | build `docker/php` | PHP 8.5 FPM + Composer + Xdebug + extensions (pgsql, intl, apcu, sodium…). Supervisord manages the Messenger workers. |
-| `nginx` | `nginx:1.29.5-alpine` | Serves the built SPA and proxies `/api` → PHP-FPM. |
+| `php` | build `docker/frankenphp` | FrankenPHP (Caddy + PHP 8.5) + Composer + extensions (pgsql, intl, apcu, opcache, sodium…). Serves the built SPA and runs the API in classic mode. |
+| `worker` | same build | `messenger:consume async` (dedicated container, no supervisord). |
 | `frontend` | `node:24-alpine` (dev) | Vite dev server with HMR (optional; the host `npm run dev` works too). |
 | `mailer` | `axllent/mailpit` | SMTP sink + web interface. |
 
 Notable points:
 
-- The PHP image is built from `php:8.5-fpm` with `install-php-extensions` for
-  reproducible builds.
-- The `docker` user (NOPASSWD sudo) avoids permission issues with mounted volumes.
-- `php` depends on `database` (`service_healthy` condition); `nginx` and
-  `frontend` depend on `php`.
+- The image is built from `dunglas/frankenphp:1.12.7-php8.5` (pinned tag) with
+  `install-php-extensions` for reproducible builds; Xdebug is not included.
+- The `docker` user (non-root, no sudo) is aligned with the host UID/GID through
+  build args (`HOST_UID`/`HOST_GROUP_ID` exported by the Makefile), avoiding
+  permission issues with mounted volumes.
+- `php` runs in classic mode in dev (code reloaded on every request); the
+  `FRANKENPHP_CONFIG` variable is ready to enable worker mode in production.
+- The `php` healthcheck calls `/api/docs`, so it covers Caddy **and** the Symfony
+  bootstrap; `worker` and `frontend` wait for `database`/`php` to be healthy.
+- FrankenPHP access logs go to stdout/stderr — use `make logs` (and
+  `make worker-logs` for the Messenger worker).
 - The frontend container keeps `node_modules` in a named volume so the dev-server
   install matches the container's libc (musl) — the host and container installs
   never clash.
