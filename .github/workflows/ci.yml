@@ -91,7 +91,7 @@ jobs:
         run: npm run build
 
   docker:
-    name: Docker · PHP image build
+    name: Docker · FrankenPHP image build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,5 +99,10 @@ jobs:
       - name: Validate compose file
         run: docker compose config --quiet
 
-      - name: Build PHP image
+      - name: Build FrankenPHP image
         run: docker compose build php
+
+      - name: Validate Caddyfile
+        run: >-
+          docker compose run --rm --no-deps php frankenphp validate
+          --config /etc/frankenphp/Caddyfile
